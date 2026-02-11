@@ -25,21 +25,15 @@ BOLT_C   = "#00d4ff"
 FLASH_C  = "#ffffff"
 BOOM_C   = "#ff6600"
 BOOM_C2  = "#ffcc00"
-THRUST_C = "#ff6600"
-THRUST_C2= "#ffcc00"
 STAR_C   = "#ffffff"
 LABEL_C  = "#8b949e"
 
-# ── Grid layout ──
+# ── Grid layout (cell sizes fixed, total dimensions calculated from data) ──
 CELL = 10; GAP = 3; STEP = 13
-COLS = 52; ROWS = 7
-ML = 55   # increased left margin for weekday labels
-MT = 80   # increased top margin for month labels + ship
+ROWS = 7
+ML = 55   # left margin for weekday labels
+MT = 80   # top margin for month labels + ship
 MR = 35; MB = 25
-GW = COLS * STEP - GAP
-GH = ROWS * STEP - GAP
-W = ML + GW + MR
-H = MT + GH + MB
 
 # ── Timing ──
 CYCLE = 24  # seconds total loop
@@ -74,27 +68,30 @@ def fetch_contributions(username, token):
     grid = []
     dates = []
     for w in weeks:
-        col = [{"level": get_lv(d["contributionCount"])} for d in w["contributionDays"]]
+        days = w["contributionDays"]
+        # Build column from contribution days
+        col = [{"level": get_lv(d["contributionCount"])} for d in days]
+        # Pad partial weeks (current week may have < 7 days) to always have 7 rows
+        while len(col) < 7:
+            col.append({"level": 0})
         grid.append(col)
         # Store first date of each week for month labels
-        if w["contributionDays"]:
-            dates.append(w["contributionDays"][0]["date"])
+        if days:
+            dates.append(days[0]["date"])
         else:
             dates.append(None)
-    # Take the LAST 52 weeks (most recent) if API returns 53+
-    if len(grid) > COLS:
-        grid = grid[-COLS:]
-        dates = dates[-COLS:]
-    while len(grid) < COLS:
-        grid.append([{"level": 0} for _ in range(7)])
-        dates.append(None)
+
+    # KEEP ALL WEEKS — do NOT cut any. Layout adapts dynamically.
+    print(f"   API returned {len(grid)} weeks (keeping all)")
     return grid, dates
 
 
 def demo_grid():
     random.seed(2024)
+    # Use 53 weeks like the real GitHub API typically returns
+    num_weeks = 53
     grid = []
-    for _ in range(COLS):
+    for _ in range(num_weeks):
         col = []
         for d in range(ROWS):
             if d >= 5:
@@ -104,15 +101,14 @@ def demo_grid():
             col.append({"level": get_lv(c)})
         grid.append(col)
 
-    # Generate demo dates (52 weeks back from today)
+    # Generate demo dates
     today = datetime.now()
-    # Find the most recent Sunday
     days_since_sunday = (today.weekday() + 1) % 7
     last_sunday = today - timedelta(days=days_since_sunday)
-    start_sunday = last_sunday - timedelta(weeks=51)
+    start_sunday = last_sunday - timedelta(weeks=num_weeks - 1)
 
     dates = []
-    for i in range(COLS):
+    for i in range(num_weeks):
         week_start = start_sunday + timedelta(weeks=i)
         dates.append(week_start.strftime("%Y-%m-%d"))
 
@@ -162,20 +158,27 @@ def group_targets(grid):
 # ── SVG ──
 
 def build_svg(grid, dates):
+    # *** DYNAMIC DIMENSIONS — adapts to actual number of weeks ***
+    COLS = len(grid)
+    GW = COLS * STEP - GAP
+    GH = ROWS * STEP - GAP
+    W = ML + GW + MR
+    H = MT + GH + MB
+
     groups = group_targets(grid)
     n_groups = len(groups)
 
+    print(f"   Grid: {COLS} cols × {ROWS} rows = {W}×{H}px, {n_groups} shot groups")
+
     # Timing: ship flies during first 60% of cycle
-    fly_dur = CYCLE * 0.60  # seconds of flight
+    fly_dur = CYCLE * 0.60
     rebuild_start_pct = 75
     rebuild_dur_pct = 18
 
     def t2p(sec):
-        """Seconds -> percentage of cycle"""
         return (sec / CYCLE) * 100
 
-    # Ship Y: flies at fixed altitude
-    SHIP_Y = MT - 30  # ship center Y, well above grid
+    SHIP_Y = MT - 30
 
     svg = []
     svg.append(f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
@@ -188,10 +191,7 @@ def build_svg(grid, dates):
     <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>''')
 
-    # ── CSS ──
     css = ['<style>']
-
-    # Twinkle stars
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
     # ── Ship X movement ──
@@ -199,7 +199,6 @@ def build_svg(grid, dates):
     x_end = ML + GW + 40
     fly_end_pct = t2p(fly_dur)
 
-    # Build ship X keyframes with pauses at each group
     ship_x_kf = []
     ship_x_kf.append(f"0% {{ transform:translateX({x_start}px) }}")
 
@@ -208,51 +207,42 @@ def build_svg(grid, dates):
         target_x = ML + center_col * STEP + CELL // 2 - 16
         arrive_pct = t2p((center_col / COLS) * fly_dur)
         pause_end = min(arrive_pct + 1.2, fly_end_pct - 1)
-
         ship_x_kf.append(f"{arrive_pct:.2f}% {{ transform:translateX({target_x}px) }}")
         ship_x_kf.append(f"{pause_end:.2f}% {{ transform:translateX({target_x}px) }}")
 
     ship_x_kf.append(f"{fly_end_pct:.1f}% {{ transform:translateX({x_end}px) }}")
     ship_x_kf.append(f"100% {{ transform:translateX({x_end}px) }}")
-
     css.append(f'@keyframes shipX {{ {" ".join(ship_x_kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
 
     # ── Ship rotation ──
     rot_kf = []
     rot_kf.append("0% { transform:rotate(0deg) }")
-
     for gi, grp in enumerate(groups):
         center_col = grp[len(grp)//2]
         arrive_pct = t2p((center_col / COLS) * fly_dur)
-
         p_approach  = max(arrive_pct - 1.5, 0.1)
         p_aimed     = max(arrive_pct - 0.3, 0.2)
         p_fire      = arrive_pct + 0.3
         p_recover   = min(arrive_pct + 1.5, fly_end_pct - 0.5)
-
         rot_kf.append(f"{p_approach:.2f}% {{ transform:rotate(0deg) }}")
         rot_kf.append(f"{p_aimed:.2f}% {{ transform:rotate(80deg) }}")
         rot_kf.append(f"{p_fire:.2f}% {{ transform:rotate(80deg) }}")
         rot_kf.append(f"{p_recover:.2f}% {{ transform:rotate(0deg) }}")
-
     rot_kf.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
     rot_kf.append("100% { transform:rotate(0deg) }")
-
     css.append(f'@keyframes shipR {{ {" ".join(rot_kf)} }}')
     css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
 
-    # ── Projectile bolts (one per group) ──
+    # ── Projectile bolts ──
     for gi, grp in enumerate(groups):
         center_col = grp[len(grp)//2]
         bolt_x = ML + center_col * STEP + CELL // 2
-
         arrive_pct = t2p((center_col / COLS) * fly_dur)
         p_fire   = arrive_pct + 0.1
         p_travel = arrive_pct + 0.6
         p_hit    = arrive_pct + 0.9
         p_gone   = arrive_pct + 1.1
-
         bolt_y_start = SHIP_Y + 12
         bolt_y_end = MT + GH // 2
 
@@ -289,18 +279,15 @@ def build_svg(grid, dates):
         center_col = grp[len(grp)//2]
         arrive_pct = t2p((center_col / COLS) * fly_dur)
         p_hit = arrive_pct + 0.9
-
         for ci in grp:
             for ri, day in enumerate(grid[ci]):
                 if day["level"] == 0:
                     continue
                 sid = f"c{ci}r{ri}"
                 clr = LV[day["level"]]
-
                 p_flash   = min(p_hit + 0.1, 99)
                 p_shrink  = min(p_hit + 0.4, 99)
                 p_dead    = min(p_hit + 0.8, 99)
-
                 rb_s = rebuild_start_pct + (ci / COLS) * rebuild_dur_pct
                 rb_e = min(rb_s + 2.5, 98)
                 rb_settle = min(rb_e + 1.0, 99)
@@ -340,15 +327,15 @@ def build_svg(grid, dates):
     month_labels = get_month_labels(dates)
     for ml_item in month_labels:
         lx = ML + ml_item["col"] * STEP
-        ly = MT - 8  # just above the grid
+        ly = MT - 8
         svg.append(f'<text x="{lx}" y="{ly}" fill="{LABEL_C}" '
                    f'font-family="Segoe UI,Helvetica,Arial,sans-serif" '
                    f'font-size="9" opacity=".8">{ml_item["name"]}</text>')
 
     # ── Weekday labels (Y axis, left of grid) ──
     for row_idx, label in WEEKDAY_LABELS.items():
-        lx = ML - 10  # right-aligned before grid
-        ly = MT + row_idx * STEP + CELL * 0.8  # vertically centered with cell
+        lx = ML - 10
+        ly = MT + row_idx * STEP + CELL * 0.8
         svg.append(f'<text x="{lx}" y="{ly}" fill="{LABEL_C}" '
                    f'font-family="Segoe UI,Helvetica,Arial,sans-serif" '
                    f'font-size="9" text-anchor="end" opacity=".8">{label}</text>')
@@ -390,28 +377,16 @@ def build_svg(grid, dates):
 <g class="shipX">
   <g style="transform:translateY({SHIP_Y}px)">
     <g class="shipR" filter="url(#glow)">
-
-      <!-- Main hull -->
       <polygon points="0,8 8,3 20,1 28,4 32,8 28,12 20,15 8,13" fill="{SHIP_C}"/>
-
-      <!-- Hull detail lines -->
       <line x1="8" y1="8" x2="22" y2="2" stroke="{SHIP_C2}" stroke-width=".8"/>
       <line x1="8" y1="8" x2="22" y2="14" stroke="{SHIP_C2}" stroke-width=".8"/>
-
-      <!-- Nose / gun -->
       <polygon points="28,5 36,8 28,11" fill="{SHIP_C2}"/>
       <polygon points="32,6 38,8 32,10" fill="#00ffaa" opacity=".85"/>
       <rect x="36" y="6.5" width="5" height="3" rx="1" fill="{LASER_C}" opacity=".7"/>
-
-      <!-- Cockpit -->
       <ellipse cx="20" cy="8" rx="4" ry="3" fill="#ffffff" opacity=".85"/>
       <ellipse cx="20" cy="8" rx="2.5" ry="1.8" fill="{BOLT_C}" opacity=".25"/>
-
-      <!-- Top fin -->
       <polygon points="10,3 16,3 14,0" fill="{SHIP_C2}" opacity=".7"/>
-      <!-- Bottom fin -->
       <polygon points="10,13 16,13 14,16" fill="{SHIP_C2}" opacity=".7"/>
-
     </g>
   </g>
 </g>''')
@@ -428,17 +403,30 @@ def main():
     out = os.environ.get("OUTPUT_DIR", "dist")
     os.makedirs(out, exist_ok=True)
 
+    using_real_data = False
     if token:
-        print(f"🚀 Fetching {username}…")
+        print(f"🚀 Fetching contributions for {username}…")
+        print(f"   Token present: {token[:4]}***{token[-4:]} ({len(token)} chars)")
         try:
             grid, dates = fetch_contributions(username, token)
-            print(f"✅ {len(grid)} weeks loaded")
+            using_real_data = True
+            # Show last week's date to verify we have recent data
+            last_date = dates[-1] if dates else "unknown"
+            print(f"✅ {len(grid)} weeks loaded (last week starts: {last_date})")
+            # Count total green squares
+            green_count = sum(1 for week in grid for day in week if day["level"] > 0)
+            print(f"   {green_count} green squares found")
         except Exception as e:
-            print(f"⚠️ {e} — demo mode")
+            print(f"❌ API ERROR: {e}")
+            print(f"   Falling back to demo mode")
             grid, dates = demo_grid()
     else:
-        print("⚠️ No token — demo mode")
+        print("⚠️ No GITHUB_TOKEN found — using demo mode")
+        print("   Demo data does NOT reflect real contributions!")
         grid, dates = demo_grid()
+
+    if not using_real_data:
+        print("⚠️ WARNING: Using DEMO data, not real GitHub contributions!")
 
     print("🎨 Building spaceship v3…")
     s = build_svg(grid, dates)
