@@ -295,6 +295,13 @@ def build_svg(grid, dates):
                 shot_set.add((ci, ri))
                 sid = f"c{ci}r{ri}"; clr = LV[day["level"]]
                 pfl = min(ph+0.1,99); psh = min(ph+0.3,99); pdd = min(ph+0.6,99)
+                # Mega explosion ripple for this square
+                dx = abs(ci - COLS//2); dy = abs(ri - ROWS//2)
+                dist = math.sqrt(dx*dx + dy*dy)
+                maxd = math.sqrt((COLS//2)**2 + (ROWS//2)**2)
+                ripple = (dist / maxd) * 2.0
+                mph = MEGA_HIT + ripple
+                mpfl = min(mph+0.15,99); mpsh = min(mph+0.4,99); mpdd = min(mph+0.8,99)
                 rb_s = REBUILD_START + (ci/COLS)*REBUILD_DUR
                 rb_e = min(rb_s+2.0,96); rb_set = min(rb_e+1.0,98)
                 css.append(f'''@keyframes d{sid} {{
@@ -303,7 +310,12 @@ def build_svg(grid, dates):
   {pfl:.2f}% {{ fill:{BOOM_C2}; transform:scale(1.3); }}
   {psh:.2f}% {{ fill:{BOOM_C}; transform:scale(.4); }}
   {pdd:.2f}% {{ fill:{EMPTY}; transform:scale(1); }}
-  {rb_s:.2f}% {{ fill:{EMPTY}; transform:scale(1); }}
+  {max(mph-0.1,pdd+0.1):.2f}% {{ fill:{EMPTY}; transform:scale(1); }}
+  {mph:.2f}% {{ fill:{FLASH_C}; transform:scale(1.5); }}
+  {mpfl:.2f}% {{ fill:{MEGA_C}; transform:scale(1.2); }}
+  {mpsh:.2f}% {{ fill:{BOOM_C}; transform:scale(.3); }}
+  {mpdd:.2f}% {{ fill:{EMPTY}; transform:scale(0); }}
+  {rb_s:.2f}% {{ fill:{EMPTY}; transform:scale(0); }}
   {rb_e:.2f}% {{ fill:{clr}; transform:scale(1.15); }}
   {rb_set:.2f}% {{ fill:{clr}; transform:scale(1); }}
   100% {{ fill:{clr}; transform:scale(1); }}
