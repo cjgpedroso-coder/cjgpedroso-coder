@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-GitHub Spaceship v4 — Grand Finale Edition
+🚀 GitHub Spaceship v4 — Grand Finale Edition
 - Ship flies across shooting green squares
 - Returns to center, fires MEGA RED LASER
 - Entire grid explodes in massive shockwave
 - Everything rebuilds at end of cycle
+- Uses GitHub's own contributionLevel for accurate colors
 """
 
 import os, json, math, random, urllib.request
@@ -12,21 +13,24 @@ from datetime import datetime, timedelta
 
 GITHUB_API = "https://api.github.com/graphql"
 
-BG       = "#0d1117"
-EMPTY    = "#161b22"
-LV       = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]
-SHIP_C   = "#00ff88"
-SHIP_C2  = "#00cc66"
-LASER_C  = "#00ffcc"
-BOLT_C   = "#00d4ff"
-FLASH_C  = "#ffffff"
-BOOM_C   = "#ff6600"
-BOOM_C2  = "#ffcc00"
-STAR_C   = "#ffffff"
-LABEL_C  = "#8b949e"
-MEGA_C   = "#ff0000"
-MEGA_C2  = "#ff3300"
-MEGA_C3  = "#ff6600"
+BG    = "#0d1117"
+EMPTY = "#161b22"
+LV    = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]
+
+# Map GitHub API contributionLevel enum to our level index
+LEVEL_MAP = {
+    "NONE": 0,
+    "FIRST_QUARTILE": 1,
+    "SECOND_QUARTILE": 2,
+    "THIRD_QUARTILE": 3,
+    "FOURTH_QUARTILE": 4,
+}
+
+SHIP_C  = "#00ff88"; SHIP_C2 = "#00cc66"
+LASER_C = "#00ffcc"; BOLT_C  = "#00d4ff"
+FLASH_C = "#ffffff"; BOOM_C  = "#ff6600"; BOOM_C2 = "#ffcc00"
+STAR_C  = "#ffffff"; LABEL_C = "#8b949e"
+MEGA_C  = "#ff0000"; MEGA_C2 = "#ff3300"; MEGA_C3 = "#ff6600"
 
 CELL = 10; GAP = 3; STEP = 13; ROWS = 7
 ML = 55; MT = 80; MR = 35; MB = 25
@@ -35,16 +39,22 @@ CYCLE = 28
 WEEKDAY_LABELS = {1: "Mon", 3: "Wed", 5: "Fri"}
 MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
+
 def get_lv(c):
+    """Fallback for demo mode only"""
     if c == 0: return 0
     if c <= 3: return 1
     if c <= 6: return 2
     if c <= 9: return 3
     return 4
 
+
 def fetch_contributions(username, token):
+    """Fetch real contributions using contributionLevel for accurate color mapping."""
     q = """query($u:String!){user(login:$u){contributionsCollection{
-    contributionCalendar{weeks{contributionDays{contributionCount date weekday}}}}}}"""
+    contributionCalendar{weeks{contributionDays{
+      contributionCount contributionLevel date weekday
+    }}}}}}"""
     p = json.dumps({"query": q, "variables": {"u": username}}).encode()
     req = urllib.request.Request(GITHUB_API, data=p, headers={
         "Authorization": f"bearer {token}", "Content-Type": "application/json"})
@@ -54,12 +64,27 @@ def fetch_contributions(username, token):
     grid, dates = [], []
     for w in weeks:
         days = w["contributionDays"]
-        col = [{"level": get_lv(d["contributionCount"])} for d in days]
-        while len(col) < 7: col.append({"level": 0})
+        col = []
+        for d in days:
+            # Use contributionLevel from API (accurate quartile-based coloring)
+            level_str = d.get("contributionLevel", "NONE")
+            level = LEVEL_MAP.get(level_str, 0)
+            # Fallback to count-based if level field missing
+            if level == 0 and d["contributionCount"] > 0:
+                level = get_lv(d["contributionCount"])
+            col.append({"level": level, "count": d["contributionCount"]})
+        while len(col) < 7:
+            col.append({"level": 0, "count": 0})
         grid.append(col)
         dates.append(days[0]["date"] if days else None)
+
+    # Stats
+    total_green = sum(1 for w in grid for d in w if d["level"] > 0)
+    by_level = {i: sum(1 for w in grid for d in w if d["level"] == i) for i in range(5)}
     print(f"   API returned {len(grid)} weeks")
+    print(f"   Green squares: {total_green} (L1:{by_level[1]} L2:{by_level[2]} L3:{by_level[3]} L4:{by_level[4]})")
     return grid, dates
+
 
 def demo_grid():
     random.seed(2024)
@@ -67,9 +92,11 @@ def demo_grid():
     for _ in range(n):
         col = []
         for d in range(ROWS):
-            if d >= 5: c = random.choices([0,1,2,3], weights=[55,25,12,8])[0]
-            else: c = random.choices([0,1,2,3,5,8,12], weights=[25,20,18,15,12,7,3])[0]
-            col.append({"level": get_lv(c)})
+            if d >= 5:
+                c = random.choices([0,1,2,3], weights=[55,25,12,8])[0]
+            else:
+                c = random.choices([0,1,2,3,5,8,12], weights=[25,20,18,15,12,7,3])[0]
+            col.append({"level": get_lv(c), "count": c})
         grid.append(col)
     today = datetime.now()
     ds = (today.weekday() + 1) % 7
@@ -77,6 +104,7 @@ def demo_grid():
     ss = ls - timedelta(weeks=n - 1)
     dates = [(ss + timedelta(weeks=i)).strftime("%Y-%m-%d") for i in range(n)]
     return grid, dates
+
 
 def get_month_labels(dates):
     labels, lm = [], None
@@ -88,14 +116,17 @@ def get_month_labels(dates):
         except: continue
     return labels
 
+
 def group_targets(grid):
     tc = [ci for ci, w in enumerate(grid) if any(d["level"] > 0 for d in w)]
     groups, i = [], 0
     while i < len(tc):
         g = [tc[i]]
-        while len(g) < 3 and i+1 < len(tc) and tc[i+1] - g[-1] <= 2: i += 1; g.append(tc[i])
+        while len(g) < 3 and i+1 < len(tc) and tc[i+1] - g[-1] <= 2:
+            i += 1; g.append(tc[i])
         groups.append(g); i += 1
     return groups
+
 
 def build_svg(grid, dates):
     COLS = len(grid)
@@ -104,11 +135,10 @@ def build_svg(grid, dates):
     W = ML + GW + MR
     H = MT + GH + MB
     groups = group_targets(grid)
-    print(f"   Grid: {COLS}x{ROWS} = {W}x{H}px, {len(groups)} groups")
+    print(f"   Grid: {COLS}x{ROWS} = {W}x{H}px, {len(groups)} shot groups")
 
     # === TIMING ===
-    fly_dur = CYCLE * 0.43
-    fly_end_pct = (fly_dur / CYCLE) * 100
+    fly_end_pct = 43.0  # individual shots phase ends
 
     CENTER_ARRIVE = 49.0
     CENTER_AIM    = 51.5
@@ -138,8 +168,7 @@ def build_svg(grid, dates):
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
     # === SHIP X ===
-    xs = ML - 50; xe = ML + GW + 40
-    scx = gcx - 16
+    xs = ML - 50; xe = ML + GW + 40; scx = gcx - 16
 
     kf = [f"0% {{ transform:translateX({xs}px) }}"]
     for gi, grp in enumerate(groups):
@@ -184,7 +213,6 @@ def build_svg(grid, dates):
         ap = (cc / COLS) * fly_end_pct
         pf = ap + 0.1; pt = ap + 0.5; ph = ap + 0.8; pg = ap + 1.0
         bys = SHIP_Y + 12; bye = MT + GH//2
-
         css.append(f'''@keyframes bolt{gi} {{
   0%,{max(pf-0.1,0):.2f}% {{ cy:{bys}; opacity:0; r:0; }}
   {pf:.2f}% {{ cy:{bys}; opacity:1; r:4; }}
@@ -196,8 +224,10 @@ def build_svg(grid, dates):
 .bolt{gi} {{ animation:bolt{gi} {CYCLE}s linear infinite; }}''')
         css.append(f'''@keyframes trail{gi} {{
   0%,{max(pf-0.1,0):.2f}% {{ opacity:0; }}
-  {pf:.2f}% {{ opacity:.8; }}  {ph:.2f}% {{ opacity:.5; }}
-  {pg:.2f}% {{ opacity:0; }}  100% {{ opacity:0; }}
+  {pf:.2f}% {{ opacity:.8; }}
+  {ph:.2f}% {{ opacity:.5; }}
+  {pg:.2f}% {{ opacity:0; }}
+  100% {{ opacity:0; }}
 }}
 .trail{gi} {{ animation:trail{gi} {CYCLE}s linear infinite; }}''')
         css.append(f'''@keyframes xpl{gi} {{
@@ -292,7 +322,7 @@ def build_svg(grid, dates):
 }}
 .megaFlash {{ animation:megaFlash {CYCLE}s linear infinite; }}''')
 
-    # === REMAINING SQUARES: MEGA DESTROY (ripple from center) ===
+    # === ALL REMAINING SQUARES: MEGA DESTROY (ripple from center) ===
     for ci, week in enumerate(grid):
         for ri, day in enumerate(week):
             if (ci, ri) in shot_set: continue
@@ -339,7 +369,7 @@ def build_svg(grid, dates):
         ly = MT + row_idx * STEP + CELL * 0.8
         svg.append(f'<text x="{ML-10}" y="{ly}" fill="{LABEL_C}" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="9" text-anchor="end" opacity=".8">{label}</text>')
 
-    # === GRID SQUARES (all get class for animation) ===
+    # === GRID SQUARES (ALL get class for animation) ===
     for ci, week in enumerate(grid):
         for ri, day in enumerate(week):
             x = ML + ci * STEP; y = MT + ri * STEP
@@ -389,32 +419,42 @@ def build_svg(grid, dates):
     svg.append('</svg>')
     return '\n'.join(svg)
 
+
 def main():
     username = os.environ.get("GITHUB_USERNAME", "cjgpedroso-coder")
     token = os.environ.get("GITHUB_TOKEN", "")
     out = os.environ.get("OUTPUT_DIR", "dist")
     os.makedirs(out, exist_ok=True)
+
     using_real = False
     if token:
-        print(f"Fetching {username}...")
+        print(f"🚀 Fetching {username}...")
+        print(f"   Token: {token[:4]}***{token[-4:]} ({len(token)} chars)")
         try:
             grid, dates = fetch_contributions(username, token)
             using_real = True
-            print(f"OK {len(grid)} weeks (last: {dates[-1]})")
+            print(f"✅ {len(grid)} weeks (last: {dates[-1]})")
         except Exception as e:
-            print(f"ERROR: {e} - demo mode"); grid, dates = demo_grid()
+            print(f"❌ API ERROR: {e}")
+            grid, dates = demo_grid()
     else:
-        print("No token - demo mode"); grid, dates = demo_grid()
-    if not using_real: print("WARNING: Demo data!")
-    print("Building spaceship v4 (Grand Finale)...")
+        print("⚠️ No GITHUB_TOKEN — demo mode")
+        grid, dates = demo_grid()
+
+    if not using_real:
+        print("⚠️ WARNING: Using DEMO data!")
+
+    print("🎨 Building spaceship v4 (Grand Finale)...")
     s = build_svg(grid, dates)
+
     for name in ("github-spaceship-dark.svg", "github-spaceship.svg"):
         path = os.path.join(out, name)
         with open(path, "w") as f: f.write(s)
-        print(f"OK {path} ({len(s):,}b)")
-    print("Done!")
+        print(f"✅ {path} ({len(s):,}b)")
+    print("🚀 Done!")
 
 if __name__ == "__main__":
     main()
+
 
 
