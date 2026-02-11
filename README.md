@@ -4,7 +4,7 @@
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=220&section=header&text=Caio%20Jo%C3%A3o%20Gomes%20Pedroso&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=40"/>
 
 <!-- TYPING ANIMATION -->
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=00D4FF&center=true&vCenter=true&multiline=true&repeat=true&random=false&width=700&height=140&lines=Brazil+Operations+Supervisor+%40+Green+Village+Mobile+Homes+%F0%9F%8F%A0;CEO+-+Head+of+Tax+Department+%40+Creme+Jundia%C3%AD+%F0%9F%8D%A6;Python+Developer+%7C+Business+Automation+%7C+AI+%E2%9A%A1;Building+Smart+Solutions+for+Real+Businesses+%F0%9F%92%BC)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=00D4FF&center=true&vCenter=true&multiline=true&repeat=true&random=false&width=700&height=140&lines=Brazil+Operations+Supervisor+%40+Green+Village+Mobile+Homes;CEO+-+Head+of+Tax+Department+Creme+Jundia%C3%AD;Python+Developer+%7C+Business+Automation+%7C+AI+%E2%9A%A1;Building+Smart+Solutions+for+Real+Businesses+%F0%9F%92%BC)](https://git.io/typing-svg)
 
 <br/>
 
