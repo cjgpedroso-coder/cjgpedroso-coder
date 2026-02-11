@@ -15,7 +15,7 @@ GITHUB_API = "https://api.github.com/graphql"
 
 BG    = "#0d1117"
 EMPTY = "#161b22"
-LV    = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]
+LV    = ["#161b22", "#1a6334", "#006d32", "#26a641", "#39d353"]
 
 LEVEL_MAP = {
     "NONE": 0,
@@ -549,5 +549,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
