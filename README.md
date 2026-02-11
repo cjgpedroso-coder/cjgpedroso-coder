@@ -8,7 +8,7 @@
 
 <!-- SOCIAL BADGES -->
 <p>
-  <a href="https://www.greenvillagemobilehouses.com" target="_blank">
+  <a href="https://www.greenvillagemobilehomes.com" target="_blank">
     <img src="https://img.shields.io/badge/🏠_Green_Village-Website-00d4ff?style=for-the-badge&labelColor=0d1117" alt="Website"/>
   </a>
   <a href="https://www.linkedin.com/in/seu-linkedin" target="_blank">
