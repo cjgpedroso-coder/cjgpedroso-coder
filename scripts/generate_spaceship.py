@@ -6,9 +6,11 @@
 - Fires visible projectile bolts that travel to targets
 - Targets flash and disintegrate on hit
 - Everything rebuilds at end of cycle
+- Axis labels: months (X) and weekdays (Y)
 """
 
 import os, json, math, random, urllib.request
+from datetime import datetime, timedelta
 
 GITHUB_API = "https://api.github.com/graphql"
 
@@ -26,11 +28,14 @@ BOOM_C2  = "#ffcc00"
 THRUST_C = "#ff6600"
 THRUST_C2= "#ffcc00"
 STAR_C   = "#ffffff"
+LABEL_C  = "#8b949e"
 
 # ── Grid layout ──
 CELL = 10; GAP = 3; STEP = 13
 COLS = 52; ROWS = 7
-ML = 35; MT = 65; MR = 35; MB = 25  # bigger top margin for ship
+ML = 55   # increased left margin for weekday labels
+MT = 80   # increased top margin for month labels + ship
+MR = 35; MB = 25
 GW = COLS * STEP - GAP
 GH = ROWS * STEP - GAP
 W = ML + GW + MR
@@ -38,6 +43,13 @@ H = MT + GH + MB
 
 # ── Timing ──
 CYCLE = 24  # seconds total loop
+
+# ── Weekday labels (same as GitHub: Mon, Wed, Fri) ──
+WEEKDAY_LABELS = {1: "Mon", 3: "Wed", 5: "Fri"}
+
+# ── Month names ──
+MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 
 def get_lv(c):
@@ -60,12 +72,19 @@ def fetch_contributions(username, token):
         data = json.loads(r.read().decode())
     weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
     grid = []
+    dates = []
     for w in weeks:
         col = [{"level": get_lv(d["contributionCount"])} for d in w["contributionDays"]]
         grid.append(col)
+        # Store first date of each week for month labels
+        if w["contributionDays"]:
+            dates.append(w["contributionDays"][0]["date"])
+        else:
+            dates.append(None)
     while len(grid) < COLS:
         grid.append([{"level": 0} for _ in range(7)])
-    return grid[:COLS]
+        dates.append(None)
+    return grid[:COLS], dates[:COLS]
 
 
 def demo_grid():
@@ -80,7 +99,38 @@ def demo_grid():
                 c = random.choices([0,1,2,3,5,8,12], weights=[25,20,18,15,12,7,3])[0]
             col.append({"level": get_lv(c)})
         grid.append(col)
-    return grid
+
+    # Generate demo dates (52 weeks back from today)
+    today = datetime.now()
+    # Find the most recent Sunday
+    days_since_sunday = (today.weekday() + 1) % 7
+    last_sunday = today - timedelta(days=days_since_sunday)
+    start_sunday = last_sunday - timedelta(weeks=51)
+
+    dates = []
+    for i in range(COLS):
+        week_start = start_sunday + timedelta(weeks=i)
+        dates.append(week_start.strftime("%Y-%m-%d"))
+
+    return grid, dates
+
+
+def get_month_labels(dates):
+    """Calculate month label positions from week dates."""
+    labels = []
+    last_month = None
+    for ci, date_str in enumerate(dates):
+        if not date_str:
+            continue
+        try:
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            month = dt.month
+            if month != last_month:
+                labels.append({"col": ci, "name": MONTH_NAMES[month - 1]})
+                last_month = month
+        except:
+            continue
+    return labels
 
 
 # ── Group adjacent target columns for cleaner animation ──
@@ -107,7 +157,7 @@ def group_targets(grid):
 
 # ── SVG ──
 
-def build_svg(grid):
+def build_svg(grid, dates):
     groups = group_targets(grid)
     n_groups = len(groups)
 
@@ -140,8 +190,6 @@ def build_svg(grid):
     # Twinkle stars
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
-    # Thrust flicker
-
     # ── Ship X movement ──
     x_start = ML - 50
     x_end = ML + GW + 40
@@ -153,10 +201,8 @@ def build_svg(grid):
 
     for gi, grp in enumerate(groups):
         center_col = grp[len(grp)//2]
-        target_x = ML + center_col * STEP + CELL // 2 - 16  # offset for ship width
-        # Time when ship arrives at this group
+        target_x = ML + center_col * STEP + CELL // 2 - 16
         arrive_pct = t2p((center_col / COLS) * fly_dur)
-        # Brief pause (ship hovers to aim and shoot)
         pause_end = min(arrive_pct + 1.2, fly_end_pct - 1)
 
         ship_x_kf.append(f"{arrive_pct:.2f}% {{ transform:translateX({target_x}px) }}")
@@ -168,7 +214,7 @@ def build_svg(grid):
     css.append(f'@keyframes shipX {{ {" ".join(ship_x_kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
 
-    # ── Ship rotation (aim down at target groups) ──
+    # ── Ship rotation ──
     rot_kf = []
     rot_kf.append("0% { transform:rotate(0deg) }")
 
@@ -176,7 +222,6 @@ def build_svg(grid):
         center_col = grp[len(grp)//2]
         arrive_pct = t2p((center_col / COLS) * fly_dur)
 
-        # Timeline: approach → aim down → hold → fire → recover
         p_approach  = max(arrive_pct - 1.5, 0.1)
         p_aimed     = max(arrive_pct - 0.3, 0.2)
         p_fire      = arrive_pct + 0.3
@@ -204,7 +249,6 @@ def build_svg(grid):
         p_hit    = arrive_pct + 0.9
         p_gone   = arrive_pct + 1.1
 
-        # Bolt travels from ship Y down to mid-grid
         bolt_y_start = SHIP_Y + 12
         bolt_y_end = MT + GH // 2
 
@@ -218,7 +262,6 @@ def build_svg(grid):
 }}
 .bolt{gi} {{ animation:bolt{gi} {CYCLE}s linear infinite; }}''')
 
-        # Bolt trail (line from ship to impact)
         css.append(f'''@keyframes trail{gi} {{
   0%,{max(p_fire-0.1,0):.2f}% {{ opacity:0; }}
   {p_fire:.2f}% {{ opacity:.8; }}
@@ -228,7 +271,6 @@ def build_svg(grid):
 }}
 .trail{gi} {{ animation:trail{gi} {CYCLE}s linear infinite; }}''')
 
-        # Explosion at impact
         css.append(f'''@keyframes xpl{gi} {{
   0%,{max(p_hit-0.05,0):.2f}% {{ r:0; opacity:0; }}
   {p_hit:.2f}% {{ r:8; opacity:1; }}
@@ -255,7 +297,6 @@ def build_svg(grid):
                 p_shrink  = min(p_hit + 0.4, 99)
                 p_dead    = min(p_hit + 0.8, 99)
 
-                # Rebuild timing spread across columns
                 rb_s = rebuild_start_pct + (ci / COLS) * rebuild_dur_pct
                 rb_e = min(rb_s + 2.5, 98)
                 rb_settle = min(rb_e + 1.0, 99)
@@ -289,6 +330,25 @@ def build_svg(grid):
         svg.append(f'<circle cx="{sx}" cy="{sy}" r="{sr}" fill="{STAR_C}" opacity=".2" '
                    f'style="animation:tw {dur:.1f}s ease {dl:.1f}s infinite;"/>')
 
+    # ═══ AXIS LABELS ═══
+
+    # ── Month labels (X axis, above grid) ──
+    month_labels = get_month_labels(dates)
+    for ml_item in month_labels:
+        lx = ML + ml_item["col"] * STEP
+        ly = MT - 8  # just above the grid
+        svg.append(f'<text x="{lx}" y="{ly}" fill="{LABEL_C}" '
+                   f'font-family="Segoe UI,Helvetica,Arial,sans-serif" '
+                   f'font-size="9" opacity=".8">{ml_item["name"]}</text>')
+
+    # ── Weekday labels (Y axis, left of grid) ──
+    for row_idx, label in WEEKDAY_LABELS.items():
+        lx = ML - 10  # right-aligned before grid
+        ly = MT + row_idx * STEP + CELL * 0.8  # vertically centered with cell
+        svg.append(f'<text x="{lx}" y="{ly}" fill="{LABEL_C}" '
+                   f'font-family="Segoe UI,Helvetica,Arial,sans-serif" '
+                   f'font-size="9" text-anchor="end" opacity=".8">{label}</text>')
+
     # ── Grid squares ──
     for ci, week in enumerate(grid):
         for ri, day in enumerate(week):
@@ -301,14 +361,14 @@ def build_svg(grid):
             else:
                 svg.append(f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" rx="2" fill="{clr}"/>')
 
-    # ── Projectile trails (laser lines) ──
+    # ── Projectile trails ──
     for gi, grp in enumerate(groups):
         center_col = grp[len(grp)//2]
         bx = ML + center_col * STEP + CELL // 2
         svg.append(f'<line class="trail{gi}" x1="{bx}" y1="{SHIP_Y+14}" x2="{bx}" y2="{MT+GH//2}" '
                    f'stroke="{LASER_C}" stroke-width="2" opacity="0" filter="url(#boltglow)" stroke-linecap="round"/>')
 
-    # ── Projectile bolts (circles) ──
+    # ── Projectile bolts ──
     for gi, grp in enumerate(groups):
         center_col = grp[len(grp)//2]
         bx = ML + center_col * STEP + CELL // 2
@@ -326,8 +386,6 @@ def build_svg(grid):
 <g class="shipX">
   <g style="transform:translateY({SHIP_Y}px)">
     <g class="shipR" filter="url(#glow)">
-
-      <!-- Thrust flames -->
 
       <!-- Main hull -->
       <polygon points="0,8 8,3 20,1 28,4 32,8 28,12 20,15 8,13" fill="{SHIP_C}"/>
@@ -369,17 +427,17 @@ def main():
     if token:
         print(f"🚀 Fetching {username}…")
         try:
-            grid = fetch_contributions(username, token)
+            grid, dates = fetch_contributions(username, token)
             print(f"✅ {len(grid)} weeks loaded")
         except Exception as e:
             print(f"⚠️ {e} — demo mode")
-            grid = demo_grid()
+            grid, dates = demo_grid()
     else:
         print("⚠️ No token — demo mode")
-        grid = demo_grid()
+        grid, dates = demo_grid()
 
     print("🎨 Building spaceship v3…")
-    s = build_svg(grid)
+    s = build_svg(grid, dates)
 
     for name in ("github-spaceship-dark.svg", "github-spaceship.svg"):
         path = os.path.join(out, name)
@@ -391,4 +449,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
