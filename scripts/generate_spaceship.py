@@ -158,12 +158,11 @@ def build_svg(grid, dates):
     css = ['<style>']
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
-    # === SHIP X: always visible, never leaves screen ===
-    # Start at left edge of grid, fly right shooting, go to right edge,
-    # return to center for mega, then back to start
+    # === SHIP X: flies across, returns to center, then exits left ===
     xs = ML + 5                    # start: left edge of grid (visible)
     xe = ML + GW - 10             # rightmost: right edge of grid (visible)
     scx = gcx - 16                # center position
+    x_offscreen = -50             # off-screen to the left
 
     kf = [f"0% {{ transform:translateX({xs}px) }}"]
     for gi, grp in enumerate(groups):
@@ -179,40 +178,35 @@ def build_svg(grid, dates):
     kf.append(f"{CENTER_ARRIVE:.1f}% {{ transform:translateX({scx}px) }}")
     # Stay at center during mega
     kf.append(f"{MEGA_BOOM:.1f}% {{ transform:translateX({scx}px) }}")
-    # Return to start position (visible)
-    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({xs}px) }}")
-    # Stay at start until loop restarts
+    # Fly off-screen to the left after mega
+    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({x_offscreen}px) }}")
+    # Stay off-screen, then reappear at start for loop
+    kf.append(f"{98.0:.1f}% {{ transform:translateX({x_offscreen}px) }}")
     kf.append(f"100% {{ transform:translateX({xs}px) }}")
     css.append(f'@keyframes shipX {{ {" ".join(kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
 
     # === SHIP ROTATION ===
     rk = ["0% { transform:rotate(0deg) }"]
-    for gi, grp in enumerate(groups):
-        cc = grp[len(grp)//2]
-        ap = (cc / COLS) * fly_end_pct
-        pa = max(ap - 1.2, 0.1); pm = max(ap - 0.2, 0.2)
-        pf = ap + 0.2; pr = min(ap + 1.2, fly_end_pct - 0.5)
-        rk.append(f"{pa:.2f}% {{ transform:rotate(0deg) }}")
-        rk.append(f"{pm:.2f}% {{ transform:rotate(80deg) }}")
-        rk.append(f"{pf:.2f}% {{ transform:rotate(80deg) }}")
-        rk.append(f"{pr:.2f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:rotate(0deg) }}")
-    rk.append(f"{CENTER_AIM:.1f}% {{ transform:rotate(-90deg) }}")
-    rk.append(f"{MEGA_BOOM:.1f}% {{ transform:rotate(-90deg) }}")
+    rk.append(f"{CENTER_AIM:.1f}% {{ transform:rotate(90deg) }}")
+    rk.append(f"{MEGA_BOOM:.1f}% {{ transform:rotate(90deg) }}")
     rk.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ transform:rotate(0deg) }}")
     rk.append(f"100% {{ transform:rotate(0deg) }}")
     css.append(f'@keyframes shipR {{ {" ".join(rk)} }}')
     css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
 
-    # === SHIP HORIZONTAL FLIP (mirror when returning to center) ===
+    # === SHIP HORIZONTAL FLIP (mirror when returning to center, stay flipped during mega) ===
     fk = [f"0% {{ transform:scaleX(1) }}"]
     fk.append(f"{fly_end_pct:.1f}% {{ transform:scaleX(1) }}")
     fk.append(f"{fly_end_pct+0.3:.1f}% {{ transform:scaleX(-1) }}")
     fk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:scaleX(-1) }}")
-    fk.append(f"{CENTER_AIM-0.5:.1f}% {{ transform:scaleX(1) }}")
-    fk.append(f"{CENTER_AIM:.1f}% {{ transform:scaleX(1) }}")
+    fk.append(f"{MEGA_BOOM:.1f}% {{ transform:scaleX(-1) }}")
+    fk.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ transform:scaleX(-1) }}")
+    fk.append(f"{MEGA_FADE:.1f}% {{ transform:scaleX(-1) }}")
+    fk.append(f"{98.0:.1f}% {{ transform:scaleX(-1) }}")
+    fk.append(f"{99.5:.1f}% {{ transform:scaleX(1) }}")
     fk.append(f"100% {{ transform:scaleX(1) }}")
     css.append(f'@keyframes shipFlip {{ {" ".join(fk)} }}')
     css.append(f'.shipFlip {{ animation:shipFlip {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
@@ -233,6 +227,9 @@ def build_svg(grid, dates):
     ek.append(f"{CENTER_AIM:.1f}% {{ opacity:0 }}")
     ek.append(f"{MEGA_BOOM:.1f}% {{ opacity:0 }}")
     ek.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ opacity:1 }}")
+    ek.append(f"{MEGA_FADE:.1f}% {{ opacity:1 }}")
+    ek.append(f"{98.0:.1f}% {{ opacity:0 }}")
+    ek.append(f"{99.5:.1f}% {{ opacity:1 }}")
     ek.append(f"100% {{ opacity:1 }}")
     css.append(f'@keyframes exhaust {{ {" ".join(ek)} }}')
     css.append(f'.exhaust {{ animation:exhaust {CYCLE}s linear infinite; }}')
