@@ -4,7 +4,7 @@
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=220&section=header&text=Caio%20Jo%C3%A3o%20Gomes%20Pedroso&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=40"/>
 
 <!-- TYPING ANIMATION -->
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=00D4FF&center=true&vCenter=true&repeat=true&random=false&width=700&height=70&lines=Brazil+Operations+Supervisor+%40+Green+Village+Mobile+Homes;CEO+-+Head+of+Tax+Department+%40+Creme+Jundia%C3%AD;Python+Developer+%7C+Business+Automation+%7C+AI;Building+Smart+Solutions+for+Real+Businesses)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&pause=1000&color=00D4FF&center=true&vCenter=true&repeat=true&random=false&width=800&height=70&lines=Brazil+Operations+Supervisor+%40+Green+Village+Mobile+Homes;CEO+-+Head+of+Tax+Department+%40+Creme+Jundia%C3%AD;Python+Developer+%7C+Business+Automation+%7C+AI;Building+Smart+Solutions+for+Real+Businesses)](https://git.io/typing-svg)
 
 <br/>
 
