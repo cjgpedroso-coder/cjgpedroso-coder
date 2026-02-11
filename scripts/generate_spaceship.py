@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """
-🚀 GitHub Spaceship v3 — Clean rewrite
-- Ship flies across the top
-- Rotates nose downward before each shot group
-- Fires visible projectile bolts that travel to targets
-- Targets flash and disintegrate on hit
+GitHub Spaceship v4 — Grand Finale Edition
+- Ship flies across shooting green squares
+- Returns to center, fires MEGA RED LASER
+- Entire grid explodes in massive shockwave
 - Everything rebuilds at end of cycle
-- Axis labels: months (X) and weekdays (Y)
 """
 
 import os, json, math, random, urllib.request
@@ -14,7 +12,6 @@ from datetime import datetime, timedelta
 
 GITHUB_API = "https://api.github.com/graphql"
 
-# ── Colors ──
 BG       = "#0d1117"
 EMPTY    = "#161b22"
 LV       = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]
@@ -27,24 +24,16 @@ BOOM_C   = "#ff6600"
 BOOM_C2  = "#ffcc00"
 STAR_C   = "#ffffff"
 LABEL_C  = "#8b949e"
+MEGA_C   = "#ff0000"
+MEGA_C2  = "#ff3300"
+MEGA_C3  = "#ff6600"
 
-# ── Grid layout (cell sizes fixed, total dimensions calculated from data) ──
-CELL = 10; GAP = 3; STEP = 13
-ROWS = 7
-ML = 55   # left margin for weekday labels
-MT = 80   # top margin for month labels + ship
-MR = 35; MB = 25
+CELL = 10; GAP = 3; STEP = 13; ROWS = 7
+ML = 55; MT = 80; MR = 35; MB = 25
+CYCLE = 28
 
-# ── Timing ──
-CYCLE = 24  # seconds total loop
-
-# ── Weekday labels (same as GitHub: Mon, Wed, Fri) ──
 WEEKDAY_LABELS = {1: "Mon", 3: "Wed", 5: "Fri"}
-
-# ── Month names ──
-MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
+MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
 def get_lv(c):
     if c == 0: return 0
@@ -52,9 +41,6 @@ def get_lv(c):
     if c <= 6: return 2
     if c <= 9: return 3
     return 4
-
-
-# ── Data fetch ──
 
 def fetch_contributions(username, token):
     q = """query($u:String!){user(login:$u){contributionsCollection{
@@ -65,242 +51,269 @@ def fetch_contributions(username, token):
     with urllib.request.urlopen(req) as r:
         data = json.loads(r.read().decode())
     weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
-    grid = []
-    dates = []
+    grid, dates = [], []
     for w in weeks:
         days = w["contributionDays"]
-        # Build column from contribution days
         col = [{"level": get_lv(d["contributionCount"])} for d in days]
-        # Pad partial weeks (current week may have < 7 days) to always have 7 rows
-        while len(col) < 7:
-            col.append({"level": 0})
+        while len(col) < 7: col.append({"level": 0})
         grid.append(col)
-        # Store first date of each week for month labels
-        if days:
-            dates.append(days[0]["date"])
-        else:
-            dates.append(None)
-
-    # KEEP ALL WEEKS — do NOT cut any. Layout adapts dynamically.
-    print(f"   API returned {len(grid)} weeks (keeping all)")
+        dates.append(days[0]["date"] if days else None)
+    print(f"   API returned {len(grid)} weeks")
     return grid, dates
-
 
 def demo_grid():
     random.seed(2024)
-    # Use 53 weeks like the real GitHub API typically returns
-    num_weeks = 53
-    grid = []
-    for _ in range(num_weeks):
+    n = 53; grid = []
+    for _ in range(n):
         col = []
         for d in range(ROWS):
-            if d >= 5:
-                c = random.choices([0,1,2,3], weights=[55,25,12,8])[0]
-            else:
-                c = random.choices([0,1,2,3,5,8,12], weights=[25,20,18,15,12,7,3])[0]
+            if d >= 5: c = random.choices([0,1,2,3], weights=[55,25,12,8])[0]
+            else: c = random.choices([0,1,2,3,5,8,12], weights=[25,20,18,15,12,7,3])[0]
             col.append({"level": get_lv(c)})
         grid.append(col)
-
-    # Generate demo dates
     today = datetime.now()
-    days_since_sunday = (today.weekday() + 1) % 7
-    last_sunday = today - timedelta(days=days_since_sunday)
-    start_sunday = last_sunday - timedelta(weeks=num_weeks - 1)
-
-    dates = []
-    for i in range(num_weeks):
-        week_start = start_sunday + timedelta(weeks=i)
-        dates.append(week_start.strftime("%Y-%m-%d"))
-
+    ds = (today.weekday() + 1) % 7
+    ls = today - timedelta(days=ds)
+    ss = ls - timedelta(weeks=n - 1)
+    dates = [(ss + timedelta(weeks=i)).strftime("%Y-%m-%d") for i in range(n)]
     return grid, dates
 
-
 def get_month_labels(dates):
-    """Calculate month label positions from week dates."""
-    labels = []
-    last_month = None
-    for ci, date_str in enumerate(dates):
-        if not date_str:
-            continue
+    labels, lm = [], None
+    for ci, ds in enumerate(dates):
+        if not ds: continue
         try:
-            dt = datetime.strptime(date_str, "%Y-%m-%d")
-            month = dt.month
-            if month != last_month:
-                labels.append({"col": ci, "name": MONTH_NAMES[month - 1]})
-                last_month = month
-        except:
-            continue
+            m = datetime.strptime(ds, "%Y-%m-%d").month
+            if m != lm: labels.append({"col": ci, "name": MONTH_NAMES[m-1]}); lm = m
+        except: continue
     return labels
 
-
-# ── Group adjacent target columns for cleaner animation ──
-
 def group_targets(grid):
-    """Group target columns into shot groups (max 3 cols per group)."""
-    target_cols = []
-    for ci, week in enumerate(grid):
-        has_target = any(d["level"] > 0 for d in week)
-        if has_target:
-            target_cols.append(ci)
-
-    groups = []
-    i = 0
-    while i < len(target_cols):
-        grp = [target_cols[i]]
-        while len(grp) < 3 and i + 1 < len(target_cols) and target_cols[i + 1] - grp[-1] <= 2:
-            i += 1
-            grp.append(target_cols[i])
-        groups.append(grp)
-        i += 1
+    tc = [ci for ci, w in enumerate(grid) if any(d["level"] > 0 for d in w)]
+    groups, i = [], 0
+    while i < len(tc):
+        g = [tc[i]]
+        while len(g) < 3 and i+1 < len(tc) and tc[i+1] - g[-1] <= 2: i += 1; g.append(tc[i])
+        groups.append(g); i += 1
     return groups
 
-
-# ── SVG ──
-
 def build_svg(grid, dates):
-    # *** DYNAMIC DIMENSIONS — adapts to actual number of weeks ***
     COLS = len(grid)
     GW = COLS * STEP - GAP
     GH = ROWS * STEP - GAP
     W = ML + GW + MR
     H = MT + GH + MB
-
     groups = group_targets(grid)
-    n_groups = len(groups)
+    print(f"   Grid: {COLS}x{ROWS} = {W}x{H}px, {len(groups)} groups")
 
-    print(f"   Grid: {COLS} cols × {ROWS} rows = {W}×{H}px, {n_groups} shot groups")
+    # === TIMING ===
+    fly_dur = CYCLE * 0.43
+    fly_end_pct = (fly_dur / CYCLE) * 100
 
-    # Timing: ship flies during first 60% of cycle
-    fly_dur = CYCLE * 0.60
-    rebuild_start_pct = 75
-    rebuild_dur_pct = 18
-
-    def t2p(sec):
-        return (sec / CYCLE) * 100
+    CENTER_ARRIVE = 49.0
+    CENTER_AIM    = 51.5
+    MEGA_FIRE     = 52.5
+    MEGA_HIT      = 53.0
+    MEGA_BOOM     = 54.0
+    MEGA_EXPAND   = 58.0
+    MEGA_FADE     = 62.0
+    REBUILD_START = 70.0
+    REBUILD_DUR   = 20.0
 
     SHIP_Y = MT - 30
+    gcx = ML + GW // 2
+    gcy = MT + GH // 2
 
     svg = []
     svg.append(f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
 <defs>
-  <filter id="glow"><feGaussianBlur stdDeviation="1.5" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  <filter id="boltglow"><feGaussianBlur stdDeviation="3" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  <filter id="boomglow"><feGaussianBlur stdDeviation="5" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="glow"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="boltglow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="boomglow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="megaglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="shockglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>''')
 
     css = ['<style>']
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
-    # ── Ship X movement ──
-    x_start = ML - 50
-    x_end = ML + GW + 40
-    fly_end_pct = t2p(fly_dur)
+    # === SHIP X ===
+    xs = ML - 50; xe = ML + GW + 40
+    scx = gcx - 16
 
-    ship_x_kf = []
-    ship_x_kf.append(f"0% {{ transform:translateX({x_start}px) }}")
-
+    kf = [f"0% {{ transform:translateX({xs}px) }}"]
     for gi, grp in enumerate(groups):
-        center_col = grp[len(grp)//2]
-        target_x = ML + center_col * STEP + CELL // 2 - 16
-        arrive_pct = t2p((center_col / COLS) * fly_dur)
-        pause_end = min(arrive_pct + 1.2, fly_end_pct - 1)
-        ship_x_kf.append(f"{arrive_pct:.2f}% {{ transform:translateX({target_x}px) }}")
-        ship_x_kf.append(f"{pause_end:.2f}% {{ transform:translateX({target_x}px) }}")
-
-    ship_x_kf.append(f"{fly_end_pct:.1f}% {{ transform:translateX({x_end}px) }}")
-    ship_x_kf.append(f"100% {{ transform:translateX({x_end}px) }}")
-    css.append(f'@keyframes shipX {{ {" ".join(ship_x_kf)} }}')
+        cc = grp[len(grp)//2]
+        tx = ML + cc * STEP + CELL//2 - 16
+        ap = (cc / COLS) * fly_end_pct
+        pe = min(ap + 1.0, fly_end_pct - 1)
+        kf.append(f"{ap:.2f}% {{ transform:translateX({tx}px) }}")
+        kf.append(f"{pe:.2f}% {{ transform:translateX({tx}px) }}")
+    kf.append(f"{fly_end_pct:.1f}% {{ transform:translateX({xe}px) }}")
+    kf.append(f"{CENTER_ARRIVE - 2:.1f}% {{ transform:translateX({xe}px) }}")
+    kf.append(f"{CENTER_ARRIVE:.1f}% {{ transform:translateX({scx}px) }}")
+    kf.append(f"{MEGA_BOOM:.1f}% {{ transform:translateX({scx}px) }}")
+    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({xe + 50}px) }}")
+    kf.append(f"100% {{ transform:translateX({xe + 50}px) }}")
+    css.append(f'@keyframes shipX {{ {" ".join(kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
 
-    # ── Ship rotation ──
-    rot_kf = []
-    rot_kf.append("0% { transform:rotate(0deg) }")
+    # === SHIP ROTATION ===
+    rk = ["0% { transform:rotate(0deg) }"]
     for gi, grp in enumerate(groups):
-        center_col = grp[len(grp)//2]
-        arrive_pct = t2p((center_col / COLS) * fly_dur)
-        p_approach  = max(arrive_pct - 1.5, 0.1)
-        p_aimed     = max(arrive_pct - 0.3, 0.2)
-        p_fire      = arrive_pct + 0.3
-        p_recover   = min(arrive_pct + 1.5, fly_end_pct - 0.5)
-        rot_kf.append(f"{p_approach:.2f}% {{ transform:rotate(0deg) }}")
-        rot_kf.append(f"{p_aimed:.2f}% {{ transform:rotate(80deg) }}")
-        rot_kf.append(f"{p_fire:.2f}% {{ transform:rotate(80deg) }}")
-        rot_kf.append(f"{p_recover:.2f}% {{ transform:rotate(0deg) }}")
-    rot_kf.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
-    rot_kf.append("100% { transform:rotate(0deg) }")
-    css.append(f'@keyframes shipR {{ {" ".join(rot_kf)} }}')
+        cc = grp[len(grp)//2]
+        ap = (cc / COLS) * fly_end_pct
+        pa = max(ap - 1.2, 0.1); pm = max(ap - 0.2, 0.2)
+        pf = ap + 0.2; pr = min(ap + 1.2, fly_end_pct - 0.5)
+        rk.append(f"{pa:.2f}% {{ transform:rotate(0deg) }}")
+        rk.append(f"{pm:.2f}% {{ transform:rotate(80deg) }}")
+        rk.append(f"{pf:.2f}% {{ transform:rotate(80deg) }}")
+        rk.append(f"{pr:.2f}% {{ transform:rotate(0deg) }}")
+    rk.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
+    rk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:rotate(0deg) }}")
+    rk.append(f"{CENTER_AIM:.1f}% {{ transform:rotate(90deg) }}")
+    rk.append(f"{MEGA_BOOM:.1f}% {{ transform:rotate(90deg) }}")
+    rk.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ transform:rotate(0deg) }}")
+    rk.append(f"100% {{ transform:rotate(0deg) }}")
+    css.append(f'@keyframes shipR {{ {" ".join(rk)} }}')
     css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
 
-    # ── Projectile bolts ──
+    # === INDIVIDUAL BOLTS ===
     for gi, grp in enumerate(groups):
-        center_col = grp[len(grp)//2]
-        bolt_x = ML + center_col * STEP + CELL // 2
-        arrive_pct = t2p((center_col / COLS) * fly_dur)
-        p_fire   = arrive_pct + 0.1
-        p_travel = arrive_pct + 0.6
-        p_hit    = arrive_pct + 0.9
-        p_gone   = arrive_pct + 1.1
-        bolt_y_start = SHIP_Y + 12
-        bolt_y_end = MT + GH // 2
+        cc = grp[len(grp)//2]
+        ap = (cc / COLS) * fly_end_pct
+        pf = ap + 0.1; pt = ap + 0.5; ph = ap + 0.8; pg = ap + 1.0
+        bys = SHIP_Y + 12; bye = MT + GH//2
 
         css.append(f'''@keyframes bolt{gi} {{
-  0%,{max(p_fire-0.1,0):.2f}% {{ cy:{bolt_y_start}; opacity:0; r:0; }}
-  {p_fire:.2f}% {{ cy:{bolt_y_start}; opacity:1; r:4; }}
-  {p_travel:.2f}% {{ cy:{(bolt_y_start+bolt_y_end)//2}; opacity:1; r:3; }}
-  {p_hit:.2f}% {{ cy:{bolt_y_end}; opacity:1; r:5; }}
-  {p_gone:.2f}% {{ cy:{bolt_y_end}; opacity:0; r:0; }}
+  0%,{max(pf-0.1,0):.2f}% {{ cy:{bys}; opacity:0; r:0; }}
+  {pf:.2f}% {{ cy:{bys}; opacity:1; r:4; }}
+  {pt:.2f}% {{ cy:{(bys+bye)//2}; opacity:1; r:3; }}
+  {ph:.2f}% {{ cy:{bye}; opacity:1; r:5; }}
+  {pg:.2f}% {{ cy:{bye}; opacity:0; r:0; }}
   100% {{ opacity:0; r:0; }}
 }}
 .bolt{gi} {{ animation:bolt{gi} {CYCLE}s linear infinite; }}''')
-
         css.append(f'''@keyframes trail{gi} {{
-  0%,{max(p_fire-0.1,0):.2f}% {{ opacity:0; }}
-  {p_fire:.2f}% {{ opacity:.8; }}
-  {p_hit:.2f}% {{ opacity:.5; }}
-  {p_gone:.2f}% {{ opacity:0; }}
-  100% {{ opacity:0; }}
+  0%,{max(pf-0.1,0):.2f}% {{ opacity:0; }}
+  {pf:.2f}% {{ opacity:.8; }}  {ph:.2f}% {{ opacity:.5; }}
+  {pg:.2f}% {{ opacity:0; }}  100% {{ opacity:0; }}
 }}
 .trail{gi} {{ animation:trail{gi} {CYCLE}s linear infinite; }}''')
-
         css.append(f'''@keyframes xpl{gi} {{
-  0%,{max(p_hit-0.05,0):.2f}% {{ r:0; opacity:0; }}
-  {p_hit:.2f}% {{ r:8; opacity:1; }}
-  {min(p_hit+0.5,99):.2f}% {{ r:20; opacity:.6; }}
-  {min(p_hit+1.0,99):.2f}% {{ r:28; opacity:0; }}
+  0%,{max(ph-0.05,0):.2f}% {{ r:0; opacity:0; }}
+  {ph:.2f}% {{ r:8; opacity:1; }}
+  {min(ph+0.4,99):.2f}% {{ r:18; opacity:.5; }}
+  {min(ph+0.8,99):.2f}% {{ r:24; opacity:0; }}
   100% {{ r:0; opacity:0; }}
 }}
 .xpl{gi} {{ animation:xpl{gi} {CYCLE}s linear infinite; }}''')
 
-    # ── Square destroy & rebuild ──
+    # === INDIVIDUAL GREEN SQUARE DESTROY ===
+    shot_set = set()
     for gi, grp in enumerate(groups):
-        center_col = grp[len(grp)//2]
-        arrive_pct = t2p((center_col / COLS) * fly_dur)
-        p_hit = arrive_pct + 0.9
+        cc = grp[len(grp)//2]
+        ap = (cc / COLS) * fly_end_pct
+        ph = ap + 0.8
         for ci in grp:
             for ri, day in enumerate(grid[ci]):
-                if day["level"] == 0:
-                    continue
-                sid = f"c{ci}r{ri}"
-                clr = LV[day["level"]]
-                p_flash   = min(p_hit + 0.1, 99)
-                p_shrink  = min(p_hit + 0.4, 99)
-                p_dead    = min(p_hit + 0.8, 99)
-                rb_s = rebuild_start_pct + (ci / COLS) * rebuild_dur_pct
-                rb_e = min(rb_s + 2.5, 98)
-                rb_settle = min(rb_e + 1.0, 99)
-
+                if day["level"] == 0: continue
+                shot_set.add((ci, ri))
+                sid = f"c{ci}r{ri}"; clr = LV[day["level"]]
+                pfl = min(ph+0.1,99); psh = min(ph+0.3,99); pdd = min(ph+0.6,99)
+                rb_s = REBUILD_START + (ci/COLS)*REBUILD_DUR
+                rb_e = min(rb_s+2.0,96); rb_set = min(rb_e+1.0,98)
                 css.append(f'''@keyframes d{sid} {{
-  0%,{max(p_hit-0.1,0):.2f}% {{ fill:{clr}; transform:scale(1); }}
-  {p_hit:.2f}% {{ fill:{FLASH_C}; transform:scale(1.6); }}
-  {p_flash:.2f}% {{ fill:{BOOM_C2}; transform:scale(1.3); }}
-  {p_shrink:.2f}% {{ fill:{BOOM_C}; transform:scale(.4); }}
-  {p_dead:.2f}% {{ fill:{EMPTY}; transform:scale(1); }}
+  0%,{max(ph-0.1,0):.2f}% {{ fill:{clr}; transform:scale(1); }}
+  {ph:.2f}% {{ fill:{FLASH_C}; transform:scale(1.6); }}
+  {pfl:.2f}% {{ fill:{BOOM_C2}; transform:scale(1.3); }}
+  {psh:.2f}% {{ fill:{BOOM_C}; transform:scale(.4); }}
+  {pdd:.2f}% {{ fill:{EMPTY}; transform:scale(1); }}
   {rb_s:.2f}% {{ fill:{EMPTY}; transform:scale(1); }}
   {rb_e:.2f}% {{ fill:{clr}; transform:scale(1.15); }}
-  {rb_settle:.2f}% {{ fill:{clr}; transform:scale(1); }}
+  {rb_set:.2f}% {{ fill:{clr}; transform:scale(1); }}
+  100% {{ fill:{clr}; transform:scale(1); }}
+}}
+.{sid} {{ animation:d{sid} {CYCLE}s linear infinite; transform-origin:center; transform-box:fill-box; }}''')
+
+    # === MEGA LASER BEAM ===
+    css.append(f'''@keyframes megaBeam {{
+  0%,{MEGA_FIRE-0.5:.1f}% {{ opacity:0; stroke-width:0; }}
+  {MEGA_FIRE:.1f}% {{ opacity:1; stroke-width:3; }}
+  {MEGA_FIRE+0.3:.1f}% {{ opacity:1; stroke-width:14; }}
+  {MEGA_HIT:.1f}% {{ opacity:1; stroke-width:20; }}
+  {MEGA_BOOM:.1f}% {{ opacity:.9; stroke-width:28; }}
+  {MEGA_EXPAND:.1f}% {{ opacity:.3; stroke-width:6; }}
+  {MEGA_FADE:.1f}% {{ opacity:0; stroke-width:0; }}
+  100% {{ opacity:0; }}
+}}
+.megaBeam {{ animation:megaBeam {CYCLE}s linear infinite; }}''')
+    css.append(f'''@keyframes megaCore {{
+  0%,{MEGA_FIRE-0.5:.1f}% {{ opacity:0; stroke-width:0; }}
+  {MEGA_FIRE+0.3:.1f}% {{ opacity:1; stroke-width:5; }}
+  {MEGA_HIT:.1f}% {{ opacity:1; stroke-width:9; }}
+  {MEGA_BOOM:.1f}% {{ opacity:.8; stroke-width:12; }}
+  {MEGA_EXPAND:.1f}% {{ opacity:.2; stroke-width:2; }}
+  {MEGA_FADE:.1f}% {{ opacity:0; }}
+  100% {{ opacity:0; }}
+}}
+.megaCore {{ animation:megaCore {CYCLE}s linear infinite; }}''')
+
+    # === MEGA EXPLOSION CIRCLES ===
+    for idx, (color, mr, delay) in enumerate([(MEGA_C,60,0),(BOOM_C2,90,0.3),(MEGA_C2,120,0.6)]):
+        s = MEGA_HIT + delay; p = s + 0.8; f = p + 2.0
+        css.append(f'''@keyframes megaBoom{idx} {{
+  0%,{max(s-0.1,0):.2f}% {{ r:0; opacity:0; }}
+  {s:.2f}% {{ r:5; opacity:.9; }}
+  {p:.2f}% {{ r:{mr}; opacity:.6; }}
+  {f:.2f}% {{ r:{mr+30}; opacity:0; }}
+  100% {{ r:0; opacity:0; }}
+}}
+.megaBoom{idx} {{ animation:megaBoom{idx} {CYCLE}s linear infinite; }}''')
+
+    # === SHOCKWAVE ===
+    msr = max(GW, GH)//2 + 40
+    css.append(f'''@keyframes shockwave {{
+  0%,{MEGA_HIT-0.1:.2f}% {{ r:0; stroke-width:0; opacity:0; }}
+  {MEGA_HIT:.2f}% {{ r:5; stroke-width:6; opacity:1; }}
+  {MEGA_HIT+1.5:.2f}% {{ r:{msr//2}; stroke-width:4; opacity:.7; }}
+  {MEGA_HIT+3:.2f}% {{ r:{msr}; stroke-width:1; opacity:0; }}
+  100% {{ r:0; opacity:0; }}
+}}
+.shockwave {{ animation:shockwave {CYCLE}s linear infinite; }}''')
+
+    # === FLASH OVERLAY ===
+    css.append(f'''@keyframes megaFlash {{
+  0%,{MEGA_HIT-0.1:.2f}% {{ opacity:0; }}
+  {MEGA_HIT:.2f}% {{ opacity:.7; }}
+  {MEGA_HIT+0.3:.2f}% {{ opacity:.4; }}
+  {MEGA_HIT+1.5:.2f}% {{ opacity:0; }}
+  100% {{ opacity:0; }}
+}}
+.megaFlash {{ animation:megaFlash {CYCLE}s linear infinite; }}''')
+
+    # === REMAINING SQUARES: MEGA DESTROY (ripple from center) ===
+    for ci, week in enumerate(grid):
+        for ri, day in enumerate(week):
+            if (ci, ri) in shot_set: continue
+            sid = f"c{ci}r{ri}"; clr = LV[day["level"]]
+            dx = abs(ci - COLS//2); dy = abs(ri - ROWS//2)
+            dist = math.sqrt(dx*dx + dy*dy)
+            maxd = math.sqrt((COLS//2)**2 + (ROWS//2)**2)
+            ripple = (dist / maxd) * 2.0
+            ph = MEGA_HIT + ripple
+            pfl = min(ph+0.15,99); psh = min(ph+0.4,99); pdd = min(ph+0.8,99)
+            rb_s = REBUILD_START + (ci/COLS)*REBUILD_DUR
+            rb_e = min(rb_s+2.0,96); rb_set = min(rb_e+1.0,98)
+            css.append(f'''@keyframes d{sid} {{
+  0%,{max(ph-0.1,0):.2f}% {{ fill:{clr}; transform:scale(1); }}
+  {ph:.2f}% {{ fill:{FLASH_C}; transform:scale(1.5); }}
+  {pfl:.2f}% {{ fill:{MEGA_C}; transform:scale(1.2); }}
+  {psh:.2f}% {{ fill:{BOOM_C}; transform:scale(.3); }}
+  {pdd:.2f}% {{ fill:{EMPTY}; transform:scale(0); }}
+  {rb_s:.2f}% {{ fill:{EMPTY}; transform:scale(0); }}
+  {rb_e:.2f}% {{ fill:{clr}; transform:scale(1.1); }}
+  {rb_set:.2f}% {{ fill:{clr}; transform:scale(1); }}
   100% {{ fill:{clr}; transform:scale(1); }}
 }}
 .{sid} {{ animation:d{sid} {CYCLE}s linear infinite; transform-origin:center; transform-box:fill-box; }}''')
@@ -308,71 +321,53 @@ def build_svg(grid, dates):
     css.append('</style>')
     svg.append('\n'.join(css))
 
-    # ── Background ──
+    # === BACKGROUND ===
     svg.append(f'<rect width="{W}" height="{H}" rx="6" fill="{BG}"/>')
 
-    # ── Stars ──
+    # === STARS ===
     random.seed(42)
     for _ in range(45):
-        sx, sy = random.randint(2, W-2), random.randint(2, H-2)
-        sr = random.uniform(.3, 1.1)
-        dur = random.uniform(1.5, 4)
-        dl = random.uniform(0, 5)
-        svg.append(f'<circle cx="{sx}" cy="{sy}" r="{sr}" fill="{STAR_C}" opacity=".2" '
-                   f'style="animation:tw {dur:.1f}s ease {dl:.1f}s infinite;"/>')
+        sx, sy = random.randint(2,W-2), random.randint(2,H-2)
+        sr = random.uniform(.3,1.1); dur = random.uniform(1.5,4); dl = random.uniform(0,5)
+        svg.append(f'<circle cx="{sx}" cy="{sy}" r="{sr}" fill="{STAR_C}" opacity=".2" style="animation:tw {dur:.1f}s ease {dl:.1f}s infinite;"/>')
 
-    # ═══ AXIS LABELS ═══
-
-    # ── Month labels (X axis, above grid) ──
-    month_labels = get_month_labels(dates)
-    for ml_item in month_labels:
+    # === LABELS ===
+    for ml_item in get_month_labels(dates):
         lx = ML + ml_item["col"] * STEP
-        ly = MT - 8
-        svg.append(f'<text x="{lx}" y="{ly}" fill="{LABEL_C}" '
-                   f'font-family="Segoe UI,Helvetica,Arial,sans-serif" '
-                   f'font-size="9" opacity=".8">{ml_item["name"]}</text>')
-
-    # ── Weekday labels (Y axis, left of grid) ──
+        svg.append(f'<text x="{lx}" y="{MT-8}" fill="{LABEL_C}" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="9" opacity=".8">{ml_item["name"]}</text>')
     for row_idx, label in WEEKDAY_LABELS.items():
-        lx = ML - 10
         ly = MT + row_idx * STEP + CELL * 0.8
-        svg.append(f'<text x="{lx}" y="{ly}" fill="{LABEL_C}" '
-                   f'font-family="Segoe UI,Helvetica,Arial,sans-serif" '
-                   f'font-size="9" text-anchor="end" opacity=".8">{label}</text>')
+        svg.append(f'<text x="{ML-10}" y="{ly}" fill="{LABEL_C}" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="9" text-anchor="end" opacity=".8">{label}</text>')
 
-    # ── Grid squares ──
+    # === GRID SQUARES (all get class for animation) ===
     for ci, week in enumerate(grid):
         for ri, day in enumerate(week):
-            x = ML + ci * STEP
-            y = MT + ri * STEP
-            clr = LV[day["level"]]
-            if day["level"] > 0:
-                sid = f"c{ci}r{ri}"
-                svg.append(f'<rect class="{sid}" x="{x}" y="{y}" width="{CELL}" height="{CELL}" rx="2" fill="{clr}"/>')
-            else:
-                svg.append(f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" rx="2" fill="{clr}"/>')
+            x = ML + ci * STEP; y = MT + ri * STEP
+            sid = f"c{ci}r{ri}"; clr = LV[day["level"]]
+            svg.append(f'<rect class="{sid}" x="{x}" y="{y}" width="{CELL}" height="{CELL}" rx="2" fill="{clr}"/>')
 
-    # ── Projectile trails ──
+    # === INDIVIDUAL SHOTS ===
     for gi, grp in enumerate(groups):
-        center_col = grp[len(grp)//2]
-        bx = ML + center_col * STEP + CELL // 2
-        svg.append(f'<line class="trail{gi}" x1="{bx}" y1="{SHIP_Y+14}" x2="{bx}" y2="{MT+GH//2}" '
-                   f'stroke="{LASER_C}" stroke-width="2" opacity="0" filter="url(#boltglow)" stroke-linecap="round"/>')
-
-    # ── Projectile bolts ──
+        cc = grp[len(grp)//2]; bx = ML + cc * STEP + CELL//2
+        svg.append(f'<line class="trail{gi}" x1="{bx}" y1="{SHIP_Y+14}" x2="{bx}" y2="{MT+GH//2}" stroke="{LASER_C}" stroke-width="2" opacity="0" filter="url(#boltglow)" stroke-linecap="round"/>')
     for gi, grp in enumerate(groups):
-        center_col = grp[len(grp)//2]
-        bx = ML + center_col * STEP + CELL // 2
+        cc = grp[len(grp)//2]; bx = ML + cc * STEP + CELL//2
         svg.append(f'<circle class="bolt{gi}" cx="{bx}" cy="{SHIP_Y+12}" r="0" fill="{BOLT_C}" filter="url(#boltglow)" opacity="0"/>')
-
-    # ── Explosions ──
     for gi, grp in enumerate(groups):
-        center_col = grp[len(grp)//2]
-        ex = ML + center_col * STEP + CELL // 2
-        ey = MT + GH // 2
-        svg.append(f'<circle class="xpl{gi}" cx="{ex}" cy="{ey}" r="0" fill="{BOOM_C2}" opacity="0" filter="url(#boomglow)"/>')
+        cc = grp[len(grp)//2]; ex = ML + cc * STEP + CELL//2
+        svg.append(f'<circle class="xpl{gi}" cx="{ex}" cy="{MT+GH//2}" r="0" fill="{BOOM_C2}" opacity="0" filter="url(#boomglow)"/>')
 
-    # ── SPACESHIP ──
+    # === MEGA LASER ===
+    svg.append(f'<line class="megaBeam" x1="{gcx}" y1="{SHIP_Y+16}" x2="{gcx}" y2="{gcy}" stroke="{MEGA_C}" stroke-width="0" opacity="0" filter="url(#megaglow)" stroke-linecap="round"/>')
+    svg.append(f'<line class="megaCore" x1="{gcx}" y1="{SHIP_Y+16}" x2="{gcx}" y2="{gcy}" stroke="{FLASH_C}" stroke-width="0" opacity="0" stroke-linecap="round"/>')
+
+    # === MEGA EXPLOSIONS ===
+    for idx, c in enumerate([MEGA_C, BOOM_C2, MEGA_C2]):
+        svg.append(f'<circle class="megaBoom{idx}" cx="{gcx}" cy="{gcy}" r="0" fill="none" stroke="{c}" stroke-width="3" opacity="0" filter="url(#megaglow)"/>')
+    svg.append(f'<circle class="shockwave" cx="{gcx}" cy="{gcy}" r="0" fill="none" stroke="{FLASH_C}" stroke-width="0" opacity="0" filter="url(#shockglow)"/>')
+    svg.append(f'<rect class="megaFlash" width="{W}" height="{H}" rx="6" fill="{FLASH_C}" opacity="0"/>')
+
+    # === SPACESHIP ===
     svg.append(f'''
 <g class="shipX">
   <g style="transform:translateY({SHIP_Y}px)">
@@ -394,50 +389,30 @@ def build_svg(grid, dates):
     svg.append('</svg>')
     return '\n'.join(svg)
 
-
-# ── Main ──
-
 def main():
     username = os.environ.get("GITHUB_USERNAME", "cjgpedroso-coder")
     token = os.environ.get("GITHUB_TOKEN", "")
     out = os.environ.get("OUTPUT_DIR", "dist")
     os.makedirs(out, exist_ok=True)
-
-    using_real_data = False
+    using_real = False
     if token:
-        print(f"🚀 Fetching contributions for {username}…")
-        print(f"   Token present: {token[:4]}***{token[-4:]} ({len(token)} chars)")
+        print(f"Fetching {username}...")
         try:
             grid, dates = fetch_contributions(username, token)
-            using_real_data = True
-            # Show last week's date to verify we have recent data
-            last_date = dates[-1] if dates else "unknown"
-            print(f"✅ {len(grid)} weeks loaded (last week starts: {last_date})")
-            # Count total green squares
-            green_count = sum(1 for week in grid for day in week if day["level"] > 0)
-            print(f"   {green_count} green squares found")
+            using_real = True
+            print(f"OK {len(grid)} weeks (last: {dates[-1]})")
         except Exception as e:
-            print(f"❌ API ERROR: {e}")
-            print(f"   Falling back to demo mode")
-            grid, dates = demo_grid()
+            print(f"ERROR: {e} - demo mode"); grid, dates = demo_grid()
     else:
-        print("⚠️ No GITHUB_TOKEN found — using demo mode")
-        print("   Demo data does NOT reflect real contributions!")
-        grid, dates = demo_grid()
-
-    if not using_real_data:
-        print("⚠️ WARNING: Using DEMO data, not real GitHub contributions!")
-
-    print("🎨 Building spaceship v3…")
+        print("No token - demo mode"); grid, dates = demo_grid()
+    if not using_real: print("WARNING: Demo data!")
+    print("Building spaceship v4 (Grand Finale)...")
     s = build_svg(grid, dates)
-
     for name in ("github-spaceship-dark.svg", "github-spaceship.svg"):
         path = os.path.join(out, name)
-        with open(path, "w") as f:
-            f.write(s)
-        print(f"✅ {path} ({len(s):,}b)")
-
-    print("🚀 Done!")
+        with open(path, "w") as f: f.write(s)
+        print(f"OK {path} ({len(s):,}b)")
+    print("Done!")
 
 if __name__ == "__main__":
     main()
