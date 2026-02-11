@@ -207,6 +207,42 @@ def build_svg(grid, dates):
     css.append(f'@keyframes shipR {{ {" ".join(rk)} }}')
     css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
 
+    # === EXHAUST FIRE (hide when rotated, show when straight) ===
+    ek = ["0% { opacity:1 }"]
+    for gi, grp in enumerate(groups):
+        cc = grp[len(grp)//2]
+        ap = (cc / COLS) * fly_end_pct
+        pa = max(ap - 1.2, 0.1); pm = max(ap - 0.2, 0.2)
+        pf = ap + 0.2; pr = min(ap + 1.2, fly_end_pct - 0.5)
+        ek.append(f"{pa:.2f}% {{ opacity:1 }}")
+        ek.append(f"{pm:.2f}% {{ opacity:0 }}")
+        ek.append(f"{pf:.2f}% {{ opacity:0 }}")
+        ek.append(f"{pr:.2f}% {{ opacity:1 }}")
+    ek.append(f"{fly_end_pct:.1f}% {{ opacity:1 }}")
+    ek.append(f"{CENTER_ARRIVE:.1f}% {{ opacity:1 }}")
+    # Hide during mega laser aim (90°)
+    ek.append(f"{CENTER_AIM:.1f}% {{ opacity:0 }}")
+    ek.append(f"{MEGA_BOOM:.1f}% {{ opacity:0 }}")
+    ek.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ opacity:1 }}")
+    ek.append(f"100% {{ opacity:1 }}")
+    css.append(f'@keyframes exhaust {{ {" ".join(ek)} }}')
+    css.append(f'.exhaust {{ animation:exhaust {CYCLE}s linear infinite; }}')
+
+    # === SHIP FLIP (face left when returning to center) ===
+    fk = [f"0% {{ transform:scaleX(1) }}"]
+    fk.append(f"{fly_end_pct:.1f}% {{ transform:scaleX(1) }}")
+    # Flip to face left just before returning
+    fk.append(f"{CENTER_ARRIVE - 2.1:.1f}% {{ transform:scaleX(1) }}")
+    fk.append(f"{CENTER_ARRIVE - 2:.1f}% {{ transform:scaleX(-1) }}")
+    # Stay flipped while at center
+    fk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:scaleX(-1) }}")
+    # Flip back to face right before exiting after explosion
+    fk.append(f"{MEGA_BOOM:.1f}% {{ transform:scaleX(-1) }}")
+    fk.append(f"{min(MEGA_BOOM+0.5,MEGA_FADE-1):.1f}% {{ transform:scaleX(1) }}")
+    fk.append(f"100% {{ transform:scaleX(1) }}")
+    css.append(f'@keyframes shipFlip {{ {" ".join(fk)} }}')
+    css.append(f'.shipFlip {{ animation:shipFlip {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
+
     # === INDIVIDUAL BOLTS ===
     for gi, grp in enumerate(groups):
         cc = grp[len(grp)//2]
@@ -401,17 +437,21 @@ def build_svg(grid, dates):
     svg.append(f'''
 <g class="shipX">
   <g style="transform:translateY({SHIP_Y}px)">
-    <g class="shipR" filter="url(#glow)">
-      <polygon points="0,8 8,3 20,1 28,4 32,8 28,12 20,15 8,13" fill="{SHIP_C}"/>
-      <line x1="8" y1="8" x2="22" y2="2" stroke="{SHIP_C2}" stroke-width=".8"/>
-      <line x1="8" y1="8" x2="22" y2="14" stroke="{SHIP_C2}" stroke-width=".8"/>
-      <polygon points="28,5 36,8 28,11" fill="{SHIP_C2}"/>
-      <polygon points="32,6 38,8 32,10" fill="#00ffaa" opacity=".85"/>
-      <rect x="36" y="6.5" width="5" height="3" rx="1" fill="{LASER_C}" opacity=".7"/>
-      <ellipse cx="20" cy="8" rx="4" ry="3" fill="#ffffff" opacity=".85"/>
-      <ellipse cx="20" cy="8" rx="2.5" ry="1.8" fill="{BOLT_C}" opacity=".25"/>
-      <polygon points="10,3 16,3 14,0" fill="{SHIP_C2}" opacity=".7"/>
-      <polygon points="10,13 16,13 14,16" fill="{SHIP_C2}" opacity=".7"/>
+    <g class="shipFlip">
+      <g class="shipR" filter="url(#glow)">
+        <polygon points="0,8 8,3 20,1 28,4 32,8 28,12 20,15 8,13" fill="{SHIP_C}"/>
+        <line x1="8" y1="8" x2="22" y2="2" stroke="{SHIP_C2}" stroke-width=".8"/>
+        <line x1="8" y1="8" x2="22" y2="14" stroke="{SHIP_C2}" stroke-width=".8"/>
+        <g class="exhaust">
+          <polygon points="28,5 36,8 28,11" fill="{SHIP_C2}"/>
+          <polygon points="32,6 38,8 32,10" fill="#00ffaa" opacity=".85"/>
+          <rect x="36" y="6.5" width="5" height="3" rx="1" fill="{LASER_C}" opacity=".7"/>
+        </g>
+        <ellipse cx="20" cy="8" rx="4" ry="3" fill="#ffffff" opacity=".85"/>
+        <ellipse cx="20" cy="8" rx="2.5" ry="1.8" fill="{BOLT_C}" opacity=".25"/>
+        <polygon points="10,3 16,3 14,0" fill="{SHIP_C2}" opacity=".7"/>
+        <polygon points="10,13 16,13 14,16" fill="{SHIP_C2}" opacity=".7"/>
+      </g>
     </g>
   </g>
 </g>''')
@@ -455,6 +495,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
