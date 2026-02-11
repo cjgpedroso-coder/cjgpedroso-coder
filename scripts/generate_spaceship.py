@@ -431,11 +431,9 @@ def build_svg(grid, dates):
       <polygon points="0,8 8,3 20,1 28,4 32,8 28,12 20,15 8,13" fill="{SHIP_C}"/>
       <line x1="8" y1="8" x2="22" y2="2" stroke="{SHIP_C2}" stroke-width=".8"/>
       <line x1="8" y1="8" x2="22" y2="14" stroke="{SHIP_C2}" stroke-width=".8"/>
-      <g class="exhaust">
-        <polygon points="28,5 36,8 28,11" fill="{SHIP_C2}"/>
-        <polygon points="32,6 38,8 32,10" fill="#00ffaa" opacity=".85"/>
-        <rect x="36" y="6.5" width="5" height="3" rx="1" fill="{LASER_C}" opacity=".7"/>
-      </g>
+      <polygon class="exhaust" points="28,5 36,8 28,11" fill="{SHIP_C2}"/>
+      <polygon class="exhaust" points="32,6 38,8 32,10" fill="#00ffaa" opacity=".85"/>
+      <rect class="exhaust" x="36" y="6.5" width="5" height="3" rx="1" fill="{LASER_C}" opacity=".7"/>
       <ellipse cx="20" cy="8" rx="4" ry="3" fill="#ffffff" opacity=".85"/>
       <ellipse cx="20" cy="8" rx="2.5" ry="1.8" fill="{BOLT_C}" opacity=".25"/>
       <polygon points="10,3 16,3 14,0" fill="{SHIP_C2}" opacity=".7"/>
