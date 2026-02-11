@@ -11,10 +11,10 @@
 <!-- SOCIAL BADGES -->
 <p>
   <a href="https://www.greenvillagemobilehouses.com" target="_blank">
-    <img src="https://img.shields.io/badge/GreenVillage-00d4ff?style=for-the-badge&logo=internet-explorer&logoColor=white&labelColor=00d4ff" alt="Green Village"/>
+    <img src="https://img.shields.io/badge/GreenVillage-2E8B57?style=for-the-badge&logo=internet-explorer&logoColor=white&labelColor=2E8B57" alt="Green Village"/>
   </a>
   <a href="https://www.cremejundiai.com.br/" target="_blank">
-    <img src="https://img.shields.io/badge/Creme_Jundiaí-00d4ff?style=for-the-badge&logo=internet-explorer&logoColor=white&labelColor=00d4ff" alt="Creme Jundiaí"/>
+    <img src="https://img.shields.io/badge/Creme_Jundiaí-228B22?style=for-the-badge&logo=internet-explorer&logoColor=white&labelColor=228B22" alt="Creme Jundiaí"/>
   </a>
   <a href="https://www.linkedin.com/in/caiojgpedroso/" target="_blank">
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0077B5" alt="LinkedIn"/>
