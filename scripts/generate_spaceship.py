@@ -206,6 +206,17 @@ def build_svg(grid, dates):
     css.append(f'@keyframes shipR {{ {" ".join(rk)} }}')
     css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
 
+    # === SHIP HORIZONTAL FLIP (mirror when returning to center) ===
+    fk = [f"0% {{ transform:scaleX(1) }}"]
+    fk.append(f"{fly_end_pct:.1f}% {{ transform:scaleX(1) }}")
+    fk.append(f"{fly_end_pct+0.3:.1f}% {{ transform:scaleX(-1) }}")
+    fk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:scaleX(-1) }}")
+    fk.append(f"{CENTER_AIM-0.5:.1f}% {{ transform:scaleX(1) }}")
+    fk.append(f"{CENTER_AIM:.1f}% {{ transform:scaleX(1) }}")
+    fk.append(f"100% {{ transform:scaleX(1) }}")
+    css.append(f'@keyframes shipFlip {{ {" ".join(fk)} }}')
+    css.append(f'.shipFlip {{ animation:shipFlip {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
+
     # === EXHAUST FIRE ===
     ek = ["0% { opacity:1 }"]
     for gi, grp in enumerate(groups):
@@ -420,6 +431,7 @@ def build_svg(grid, dates):
     svg.append(f'''
 <g class="shipX">
   <g style="transform:translateY({SHIP_Y}px)">
+    <g class="shipFlip">
     <g class="shipR" filter="url(#glow)">
       <polygon points="0,8 8,3 20,1 28,4 32,8 28,12 20,15 8,13" fill="{SHIP_C}"/>
       <line x1="8" y1="8" x2="22" y2="2" stroke="{SHIP_C2}" stroke-width=".8"/>
@@ -431,6 +443,7 @@ def build_svg(grid, dates):
       <ellipse cx="20" cy="8" rx="2.5" ry="1.8" fill="{BOLT_C}" opacity=".25"/>
       <polygon points="10,3 16,3 14,0" fill="{SHIP_C2}" opacity=".7"/>
       <polygon points="10,13 16,13 14,16" fill="{SHIP_C2}" opacity=".7"/>
+    </g>
     </g>
   </g>
 </g>''')
@@ -474,3 +487,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
