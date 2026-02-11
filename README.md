@@ -42,8 +42,7 @@ const caio = {
     born: 1994,
     roles: [
         "Brazil Operations Supervisor @ Green Village Mobile Homes 🏠",
-        "CEO - Head of Tax Department @ Creme Jundiaí 🍦",
-        "Business Intelligence Analyst 📊"
+        "CEO - Head of Tax Department @ Creme Jundiaí 🍦"
     ],
     location: "Brazil 🇧🇷",
     markets: ["Portugal", "Spain", "Brazil"],
@@ -199,4 +198,5 @@ Complete business management system covering operations, financial tracking, rep
 
 <!-- ANIMATED FOOTER -->
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00ff88&height=120&section=footer"/>
+
 
