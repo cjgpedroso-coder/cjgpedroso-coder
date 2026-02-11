@@ -186,8 +186,22 @@ def build_svg(grid, dates):
     css.append(f'@keyframes shipX {{ {" ".join(kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
 
-    # === SHIP ROTATION ===
+
     rk = ["0% { transform:rotate(0deg) }"]
+    for gi, grp in enumerate(groups):
+        cc = grp[len(grp)//2]
+        ap = (cc / COLS) * fly_end_pct
+        pe = min(ap + 1.0, fly_end_pct - 1)
+        # rotate to 90deg just before firing
+        r_start = max(ap - 0.15, 0.1)
+        r_aimed = ap + 0.1
+        # stay rotated during shot, then rotate back
+        r_back_start = pe - 0.2
+        r_back_end = pe
+        rk.append(f"{r_start:.2f}% {{ transform:rotate(0deg) }}")
+        rk.append(f"{r_aimed:.2f}% {{ transform:rotate(90deg) }}")
+        rk.append(f"{r_back_start:.2f}% {{ transform:rotate(90deg) }}")
+        rk.append(f"{r_back_end:.2f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{CENTER_AIM:.1f}% {{ transform:rotate(90deg) }}")
@@ -195,7 +209,7 @@ def build_svg(grid, dates):
     rk.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ transform:rotate(0deg) }}")
     rk.append(f"100% {{ transform:rotate(0deg) }}")
     css.append(f'@keyframes shipR {{ {" ".join(rk)} }}')
-    css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
+    css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; transform-box:fill-box; }}')
 
     # === SHIP HORIZONTAL FLIP (mirror when returning to center, stay flipped during mega) ===
     fk = [f"0% {{ transform:scaleX(1) }}"]
@@ -209,7 +223,7 @@ def build_svg(grid, dates):
     fk.append(f"{99.5:.1f}% {{ transform:scaleX(1) }}")
     fk.append(f"100% {{ transform:scaleX(1) }}")
     css.append(f'@keyframes shipFlip {{ {" ".join(fk)} }}')
-    css.append(f'.shipFlip {{ animation:shipFlip {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
+    css.append(f'.shipFlip {{ animation:shipFlip {CYCLE}s linear infinite; transform-origin:16px 8px; transform-box:fill-box; }}')
 
     # === EXHAUST FIRE ===
     ek = ["0% { opacity:1 }"]
@@ -424,22 +438,36 @@ def build_svg(grid, dates):
     svg.append(f'<circle class="shockwave" cx="{gcx}" cy="{gcy}" r="0" fill="none" stroke="{FLASH_C}" stroke-width="0" opacity="0" filter="url(#shockglow)"/>')
     svg.append(f'<rect class="megaFlash" width="{W}" height="{H}" rx="6" fill="{FLASH_C}" opacity="0"/>')
 
-    # === SPACESHIP ===
+    # === FLYING SAUCER ===
     svg.append(f'''
 <g class="shipX">
   <g style="transform:translateY({SHIP_Y}px)">
     <g class="shipFlip">
     <g class="shipR" filter="url(#glow)">
-      <polygon points="0,8 8,3 20,1 28,4 32,8 28,12 20,15 8,13" fill="{SHIP_C}"/>
-      <line x1="8" y1="8" x2="22" y2="2" stroke="{SHIP_C2}" stroke-width=".8"/>
-      <line x1="8" y1="8" x2="22" y2="14" stroke="{SHIP_C2}" stroke-width=".8"/>
-      <polygon class="exhaust" points="28,5 36,8 28,11" fill="{SHIP_C2}"/>
-      <polygon class="exhaust" points="32,6 38,8 32,10" fill="#00ffaa" opacity=".85"/>
-      <rect class="exhaust" x="36" y="6.5" width="5" height="3" rx="1" fill="{LASER_C}" opacity=".7"/>
-      <ellipse cx="20" cy="8" rx="4" ry="3" fill="#ffffff" opacity=".85"/>
-      <ellipse cx="20" cy="8" rx="2.5" ry="1.8" fill="{BOLT_C}" opacity=".25"/>
-      <polygon points="10,3 16,3 14,0" fill="{SHIP_C2}" opacity=".7"/>
-      <polygon points="10,13 16,13 14,16" fill="{SHIP_C2}" opacity=".7"/>
+      <!-- Underside glow / tractor beam -->
+      <ellipse class="exhaust" cx="16" cy="14" rx="8" ry="3" fill="{LASER_C}" opacity=".3"/>
+      <ellipse class="exhaust" cx="16" cy="16" rx="5" ry="2" fill="#00ffaa" opacity=".25"/>
+      <!-- Main saucer body -->
+      <ellipse cx="16" cy="9" rx="16" ry="5" fill="{SHIP_C2}"/>
+      <ellipse cx="16" cy="9" rx="16" ry="5" fill="none" stroke="{SHIP_C}" stroke-width=".6" opacity=".6"/>
+      <!-- Upper body highlight -->
+      <ellipse cx="16" cy="8" rx="13" ry="3.5" fill="{SHIP_C}" opacity=".5"/>
+      <!-- Glass dome -->
+      <ellipse cx="16" cy="6" rx="7" ry="5" fill="#aaffdd" opacity=".15"/>
+      <ellipse cx="16" cy="5" rx="5.5" ry="4" fill="{BOLT_C}" opacity=".2"/>
+      <ellipse cx="16" cy="4.5" rx="4" ry="3" fill="#ffffff" opacity=".3"/>
+      <ellipse cx="15" cy="3.5" rx="2" ry="1.5" fill="#ffffff" opacity=".5"/>
+      <!-- Rim lights -->
+      <circle cx="3" cy="10" r="1" fill="{LASER_C}" opacity=".9"/>
+      <circle cx="8" cy="12" r="1" fill="#00ffaa" opacity=".85"/>
+      <circle cx="16" cy="13" r="1" fill="{LASER_C}" opacity=".9"/>
+      <circle cx="24" cy="12" r="1" fill="#00ffaa" opacity=".85"/>
+      <circle cx="29" cy="10" r="1" fill="{LASER_C}" opacity=".9"/>
+      <!-- Rim lights twinkle -->
+      <circle cx="5" cy="11" r=".7" fill="#ffffff" opacity=".6" style="animation:tw 1.2s ease 0s infinite;"/>
+      <circle cx="11" cy="12.5" r=".7" fill="#ffffff" opacity=".6" style="animation:tw 1.2s ease 0.4s infinite;"/>
+      <circle cx="21" cy="12.5" r=".7" fill="#ffffff" opacity=".6" style="animation:tw 1.2s ease 0.8s infinite;"/>
+      <circle cx="27" cy="11" r=".7" fill="#ffffff" opacity=".6" style="animation:tw 1.2s ease 1.2s infinite;"/>
     </g>
     </g>
   </g>
@@ -484,4 +512,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
