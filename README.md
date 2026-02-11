@@ -10,7 +10,7 @@
 
 <!-- SOCIAL BADGES -->
 <p>
-  <a href="https://www.greenvillagemobilehouses.com" target="_blank">
+  <a href="https://www.greenvillagemobilehomes.com" target="_blank">
     <img src="https://img.shields.io/badge/GreenVillage-2E8B57?style=for-the-badge&logo=internet-explorer&logoColor=white&labelColor=2E8B57" alt="Green Village"/>
   </a>
   <a href="https://www.cremejundiai.com.br/" target="_blank">
@@ -152,13 +152,6 @@ Complete business management system covering operations, financial tracking, rep
 </div>
 
 ## 📊 GitHub Analytics
-
-<div align="center">
-  <img width="49%" height="195px" src="https://github-readme-stats-git-masterrstaa-rickstaa.vercel.app/api?username=cjgpedroso-coder&show_icons=true&count_private=true&hide_border=true&title_color=00d4ff&icon_color=00d4ff&text_color=c9d1d9&bg_color=0d1117&ring_color=00d4ff" alt="GitHub Stats" /> 
-  <img width="41%" height="195px" src="https://github-readme-stats-git-masterrstaa-rickstaa.vercel.app/api/top-langs/?username=cjgpedroso-coder&layout=compact&hide_border=true&title_color=00d4ff&text_color=c9d1d9&bg_color=0d1117" alt="Most Used Languages" />
-</div>
-
-<br/>
 
 <div align="center">
   <img width="90%" src="https://github-readme-streak-stats.herokuapp.com/?user=cjgpedroso-coder&theme=black-ice&hide_border=true&stroke=0000&background=0D1117&ring=00d4ff&fire=00d4ff&currStreakLabel=00d4ff" alt="Streak Stats"/>
