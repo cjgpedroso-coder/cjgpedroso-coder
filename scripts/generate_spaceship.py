@@ -152,12 +152,12 @@ def build_svg(grid, dates):
     TYPE_END   = TYPE_START + 4.0      # 67% — fully typed
     TYPE_HOLD  = TYPE_END + 1.5        # 68.5% — hold visible
     TYPE_FADE  = TYPE_HOLD + 1.5       # 70% — fully faded
-    # Approximate text width: ~9px per char for monospace at 14px
-    TYPE_FONT_SIZE = 14
-    TYPE_CHAR_W = 8.4
+    # Approximate text width: ~10.8px per char for monospace at 18px
+    TYPE_FONT_SIZE = 18
+    TYPE_CHAR_W = 10.8
     TYPE_TOTAL_W = TYPE_CHARS * TYPE_CHAR_W
     TYPE_X = W // 2 - TYPE_TOTAL_W // 2
-    TYPE_Y = H // 2 + TYPE_FONT_SIZE // 3
+    TYPE_Y = H // 2 + 25
 
     svg = []
     svg.append(f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
@@ -223,7 +223,7 @@ def build_svg(grid, dates):
     fk.append(f"{MEGA_BOOM:.1f}% {{ transform:scaleX(-1) }}")
     fk.append(f"{MEGA_FADE:.1f}% {{ transform:scaleX(-1) }}")
     fk.append(f"{98.0:.1f}% {{ transform:scaleX(-1) }}")
-    fk.append(f"{99.5:.1f}% {{ transform:scaleX(1) }}")
+    fk.append(f"98.01% {{ transform:scaleX(1) }}")
     fk.append(f"100% {{ transform:scaleX(1) }}")
     css.append(f'@keyframes shipFlip {{ {" ".join(fk)} }}')
     css.append(f'.shipFlip {{ animation:shipFlip {CYCLE}s linear infinite; transform-origin:16px 8px; transform-box:fill-box; }}')
@@ -549,4 +549,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
