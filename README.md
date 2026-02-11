@@ -1,23 +1,30 @@
 <div align="center">
 
 <!-- ANIMATED HEADER -->
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=250&section=header&text=Caio%20Jo%C3%A3o%20Gomes%20Pedroso&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=30&desc=Brazil%20Operations%20Supervisor%20%40%20Green%20Village%20Mobile%20Homes%0ACEO%20-%20Head%20of%20Tax%20Department%20%40%20Creme%20Jundia%C3%AD&descSize=14&descAlignY=52&descAlign=50"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=220&section=header&text=Caio%20Jo%C3%A3o%20Gomes%20Pedroso&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Brazil%20Operations%20Supervisor%20%40%20Green%20Village%20Mobile%20Homes&descSize=15&descAlignY=52&descAlign=50"/>
+
+<h4>🍦 CEO - Head of Tax Department @ Creme Jundiaí</h4>
 
 <!-- TYPING ANIMATION -->
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=00D4FF&center=true&vCenter=true&multiline=true&repeat=true&random=false&width=700&height=100&lines=Brazil+Operations+Supervisor+%40+Green+Village+Mobile+Homes+%F0%9F%8F%A0;CEO+-+Head+of+Tax+Department+%40+Creme+Jundia%C3%AD+%F0%9F%8D%A6;Python+Developer+%7C+Business+Automation+%7C+AI+%E2%9A%A1;Building+Smart+Solutions+for+Real+Businesses+%F0%9F%92%BC)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=00D4FF&center=true&vCenter=true&multiline=true&repeat=true&random=false&width=700&height=140&lines=Brazil+Operations+Supervisor+%40+Green+Village+Mobile+Homes+%F0%9F%8F%A0;CEO+-+Head+of+Tax+Department+%40+Creme+Jundia%C3%AD+%F0%9F%8D%A6;Python+Developer+%7C+Business+Automation+%7C+AI+%E2%9A%A1;Building+Smart+Solutions+for+Real+Businesses+%F0%9F%92%BC)](https://git.io/typing-svg)
+
+<br/>
 
 <!-- SOCIAL BADGES -->
 <p>
   <a href="https://www.greenvillagemobilehouses.com" target="_blank">
     <img src="https://img.shields.io/badge/🏠_Green_Village-Website-00d4ff?style=for-the-badge&labelColor=0d1117" alt="Website"/>
   </a>
-  <a href="https://www.linkedin.com/in/seu-linkedin" target="_blank">
+  <a href="https://www.cremejundiai.com.br/" target="_blank">
+    <img src="https://img.shields.io/badge/🏠_Creme_Jundiai-Website-00d4ff?style=for-the-badge&labelColor=0d1117" alt="Website"/>
+  </a>
+  <a href="https://www.linkedin.com/in/caiojgpedroso/" target="_blank">
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0d1117" alt="LinkedIn"/>
   </a>
-  <a href="mailto:seu-email@email.com">
+  <a href="cjgpedroso@gmail.com">
     <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white&labelColor=0d1117" alt="Email"/>
   </a>
-  <a href="https://www.instagram.com/seu-instagram" target="_blank">
+  <a href="https://www.instagram.com/_caiopedroso?igsh=Y2V4a29zemI0aGpp" target="_blank">
     <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white&labelColor=0d1117" alt="Instagram"/>
   </a>
 </p>
@@ -212,6 +219,7 @@ Complete business management system covering operations, financial tracking, rep
 
 <!-- ANIMATED FOOTER -->
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=120&section=footer"/>
+
 
 
 
