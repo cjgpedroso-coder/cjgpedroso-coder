@@ -145,6 +145,20 @@ def build_svg(grid, dates):
     gcx = ML + GW // 2
     gcy = MT + GH // 2
 
+    # Typewriter text config
+    TYPE_TEXT = "Let's begin again?"
+    TYPE_CHARS = len(TYPE_TEXT)
+    TYPE_START = MEGA_FADE + 1.0       # 63% — text starts appearing
+    TYPE_END   = TYPE_START + 4.0      # 67% — fully typed
+    TYPE_HOLD  = TYPE_END + 1.5        # 68.5% — hold visible
+    TYPE_FADE  = TYPE_HOLD + 1.5       # 70% — fully faded
+    # Approximate text width: ~9px per char for monospace at 14px
+    TYPE_FONT_SIZE = 14
+    TYPE_CHAR_W = 8.4
+    TYPE_TOTAL_W = TYPE_CHARS * TYPE_CHAR_W
+    TYPE_X = W // 2 - TYPE_TOTAL_W // 2
+    TYPE_Y = H // 2 + TYPE_FONT_SIZE // 3
+
     svg = []
     svg.append(f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
 <defs>
@@ -153,16 +167,23 @@ def build_svg(grid, dates):
   <filter id="boomglow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="megaglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="shockglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="textglow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <clipPath id="typeClip"><rect class="typeReveal" x="{TYPE_X}" y="{TYPE_Y - TYPE_FONT_SIZE}" width="0" height="{TYPE_FONT_SIZE + 10}"/></clipPath>
 </defs>''')
 
     css = ['<style>']
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
-    # === SHIP X: flies across, returns to center, then exits left ===
+    # === SHIP X: flies right, exits right, returns to center, exits left ===
     xs = ML + 5                    # start: left edge of grid (visible)
     xe = ML + GW - 10             # rightmost: right edge of grid (visible)
     scx = gcx - 16                # center position
-    x_offscreen = -50             # off-screen to the left
+    x_offscreen_right = W + 50    # off-screen to the right
+    x_offscreen_left = -50        # off-screen to the left
+
+    # Timing: fly_end=43 → exit_right=45 → wait=46 → center_arrive=49 → mega → exit_left
+    EXIT_RIGHT = fly_end_pct + 2.0
+    WAIT_RIGHT = EXIT_RIGHT + 1.0
 
     kf = [f"0% {{ transform:translateX({xs}px) }}"]
     for gi, grp in enumerate(groups):
@@ -172,16 +193,19 @@ def build_svg(grid, dates):
         pe = min(ap + 1.0, fly_end_pct - 1)
         kf.append(f"{ap:.2f}% {{ transform:translateX({tx}px) }}")
         kf.append(f"{pe:.2f}% {{ transform:translateX({tx}px) }}")
-    # Reach right edge (still visible)
+    # Continue right and exit off-screen
     kf.append(f"{fly_end_pct:.1f}% {{ transform:translateX({xe}px) }}")
-    # Fly back to center for mega (visible the whole time)
+    kf.append(f"{EXIT_RIGHT:.1f}% {{ transform:translateX({x_offscreen_right}px) }}")
+    # Stay off-screen briefly
+    kf.append(f"{WAIT_RIGHT:.1f}% {{ transform:translateX({x_offscreen_right}px) }}")
+    # Fly back to center for mega
     kf.append(f"{CENTER_ARRIVE:.1f}% {{ transform:translateX({scx}px) }}")
     # Stay at center during mega
     kf.append(f"{MEGA_BOOM:.1f}% {{ transform:translateX({scx}px) }}")
     # Fly off-screen to the left after mega
-    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({x_offscreen}px) }}")
+    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({x_offscreen_left}px) }}")
     # Stay off-screen, then reappear at start for loop
-    kf.append(f"{98.0:.1f}% {{ transform:translateX({x_offscreen}px) }}")
+    kf.append(f"{98.0:.1f}% {{ transform:translateX({x_offscreen_left}px) }}")
     kf.append(f"100% {{ transform:translateX({xs}px) }}")
     css.append(f'@keyframes shipX {{ {" ".join(kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
@@ -190,13 +214,13 @@ def build_svg(grid, dates):
     css.append(f'@keyframes shipR {{ 0% {{ transform:rotate(0deg) }} 100% {{ transform:rotate(0deg) }} }}')
     css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; transform-box:fill-box; }}')
 
-    # === SHIP HORIZONTAL FLIP (mirror when returning to center, stay flipped during mega) ===
+    # === SHIP HORIZONTAL FLIP ===
+    # No flip while going right (0→45%), flip when returning from right to center (46→49%)
     fk = [f"0% {{ transform:scaleX(1) }}"]
-    fk.append(f"{fly_end_pct:.1f}% {{ transform:scaleX(1) }}")
-    fk.append(f"{fly_end_pct+0.3:.1f}% {{ transform:scaleX(-1) }}")
+    fk.append(f"{EXIT_RIGHT:.1f}% {{ transform:scaleX(1) }}")
+    fk.append(f"{WAIT_RIGHT:.1f}% {{ transform:scaleX(-1) }}")
     fk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:scaleX(-1) }}")
     fk.append(f"{MEGA_BOOM:.1f}% {{ transform:scaleX(-1) }}")
-    fk.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ transform:scaleX(-1) }}")
     fk.append(f"{MEGA_FADE:.1f}% {{ transform:scaleX(-1) }}")
     fk.append(f"{98.0:.1f}% {{ transform:scaleX(-1) }}")
     fk.append(f"{99.5:.1f}% {{ transform:scaleX(1) }}")
@@ -342,6 +366,33 @@ def build_svg(grid, dates):
 }}
 .megaFlash {{ animation:megaFlash {CYCLE}s linear infinite; }}''')
 
+    # === TYPEWRITER TEXT: "Let's begin again?" ===
+    css.append(f'''@keyframes typeReveal {{
+  0%,{TYPE_START-0.1:.2f}% {{ width:0; }}
+  {TYPE_END:.2f}% {{ width:{TYPE_TOTAL_W + 5}px; }}
+  {TYPE_FADE:.2f}% {{ width:{TYPE_TOTAL_W + 5}px; }}
+  {TYPE_FADE+0.1:.2f}% {{ width:0; }}
+  100% {{ width:0; }}
+}}
+.typeReveal {{ animation:typeReveal {CYCLE}s steps({TYPE_CHARS},end) infinite; }}''')
+    css.append(f'''@keyframes typeOpacity {{
+  0%,{TYPE_START-0.1:.2f}% {{ opacity:0; }}
+  {TYPE_START:.2f}% {{ opacity:1; }}
+  {TYPE_HOLD:.2f}% {{ opacity:1; }}
+  {TYPE_FADE:.2f}% {{ opacity:0; }}
+  100% {{ opacity:0; }}
+}}
+.typeText {{ animation:typeOpacity {CYCLE}s linear infinite; }}''')
+    css.append(f'''@keyframes typeCursor {{
+  0%,{TYPE_START-0.1:.2f}% {{ opacity:0; }}
+  {TYPE_START:.2f}% {{ opacity:1; }}
+  {TYPE_END:.2f}% {{ opacity:1; }}
+  {TYPE_END+0.1:.2f}% {{ opacity:0; }}
+  100% {{ opacity:0; }}
+}}
+.typeCursor {{ animation:typeCursor {CYCLE}s linear infinite; }}''')
+    css.append(f'@keyframes blink {{ 0%,100% {{ opacity:1 }} 50% {{ opacity:0 }} }}')
+
     # === ALL REMAINING SQUARES: MEGA DESTROY ===
     for ci, week in enumerate(grid):
         for ri, day in enumerate(week):
@@ -452,6 +503,13 @@ def build_svg(grid, dates):
   </g>
 </g>''')
 
+    # === TYPEWRITER TEXT ===
+    svg.append(f'''
+<g class="typeText">
+  <text x="{TYPE_X}" y="{TYPE_Y}" fill="{SHIP_C}" font-family="'Courier New',Courier,monospace" font-size="{TYPE_FONT_SIZE}" font-weight="bold" filter="url(#textglow)" clip-path="url(#typeClip)">{TYPE_TEXT}</text>
+  <rect class="typeCursor" x="{TYPE_X}" y="{TYPE_Y - TYPE_FONT_SIZE + 2}" width="2" height="{TYPE_FONT_SIZE}" fill="{SHIP_C}" style="animation:blink 0.6s step-end infinite, typeCursor {CYCLE}s linear infinite;"/>
+</g>''')
+
     svg.append('</svg>')
     return '\n'.join(svg)
 
@@ -491,5 +549,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
