@@ -67,11 +67,6 @@ const caio = {
 
 <div align="center">
 
-### 🎨 Frontend
-<p>
-  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-</p>
-
 ### ⚙️ Backend & Databases
 <p>
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
