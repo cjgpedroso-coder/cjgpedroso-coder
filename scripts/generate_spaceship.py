@@ -141,8 +141,6 @@ def build_svg(grid):
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
     # Thrust flicker
-    css.append('@keyframes thr { 0%,100%{opacity:.9;transform:scaleX(1)} 50%{opacity:.3;transform:scaleX(.5)} }')
-    css.append('.thr { animation:thr .08s linear infinite; transform-origin:right center; }')
 
     # ── Ship X movement ──
     x_start = ML - 50
@@ -185,8 +183,8 @@ def build_svg(grid):
         p_recover   = min(arrive_pct + 1.5, fly_end_pct - 0.5)
 
         rot_kf.append(f"{p_approach:.2f}% {{ transform:rotate(0deg) }}")
-        rot_kf.append(f"{p_aimed:.2f}% {{ transform:rotate(55deg) }}")
-        rot_kf.append(f"{p_fire:.2f}% {{ transform:rotate(55deg) }}")
+        rot_kf.append(f"{p_aimed:.2f}% {{ transform:rotate(80deg) }}")
+        rot_kf.append(f"{p_fire:.2f}% {{ transform:rotate(80deg) }}")
         rot_kf.append(f"{p_recover:.2f}% {{ transform:rotate(0deg) }}")
 
     rot_kf.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
@@ -330,11 +328,6 @@ def build_svg(grid):
     <g class="shipR" filter="url(#glow)">
 
       <!-- Thrust flames -->
-      <g class="thr">
-        <polygon points="-12,4 0,6.5 0,9.5 -12,12" fill="{THRUST_C}" opacity=".8"/>
-        <polygon points="-7,5 0,7 0,9 -7,11" fill="{THRUST_C2}" opacity=".6"/>
-        <polygon points="-4,6 0,7.5 0,8.5 -4,10" fill="{FLASH_C}" opacity=".35"/>
-      </g>
 
       <!-- Main hull -->
       <polygon points="0,8 8,3 20,1 28,4 32,8 28,12 20,15 8,13" fill="{SHIP_C}"/>
@@ -398,5 +391,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
