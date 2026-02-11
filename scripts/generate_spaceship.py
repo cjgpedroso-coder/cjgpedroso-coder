@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-🚀 GitHub Spaceship v4 — Grand Finale Edition
-- Ship flies across shooting green squares
-- Returns to center (facing forward), fires MEGA RED LASER
+🚀 GitHub Spaceship v4 — Grand Finale Edition (No Disappear)
+- Ship flies across shooting green squares (always visible)
+- Returns to center, fires MEGA RED LASER
 - Entire grid explodes in massive shockwave
 - Everything rebuilds at end of cycle
-- Uses GitHub's own contributionLevel for accurate colors
+- Ship NEVER leaves the screen
 """
 
 import os, json, math, random, urllib.request
@@ -158,8 +158,12 @@ def build_svg(grid, dates):
     css = ['<style>']
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
-    # === SHIP X: fly right, exit right, RETURN FROM RIGHT to center, exit left ===
-    xs = ML - 50; xe = ML + GW + 40; scx = gcx - 16
+    # === SHIP X: always visible, never leaves screen ===
+    # Start at left edge of grid, fly right shooting, go to right edge,
+    # return to center for mega, then back to start
+    xs = ML + 5                    # start: left edge of grid (visible)
+    xe = ML + GW - 10             # rightmost: right edge of grid (visible)
+    scx = gcx - 16                # center position
 
     kf = [f"0% {{ transform:translateX({xs}px) }}"]
     for gi, grp in enumerate(groups):
@@ -169,14 +173,16 @@ def build_svg(grid, dates):
         pe = min(ap + 1.0, fly_end_pct - 1)
         kf.append(f"{ap:.2f}% {{ transform:translateX({tx}px) }}")
         kf.append(f"{pe:.2f}% {{ transform:translateX({tx}px) }}")
+    # Reach right edge (still visible)
     kf.append(f"{fly_end_pct:.1f}% {{ transform:translateX({xe}px) }}")
-    # Stay off-screen right, then fly BACK from right to center (facing forward!)
-    kf.append(f"{CENTER_ARRIVE - 2:.1f}% {{ transform:translateX({xe}px) }}")
+    # Fly back to center for mega (visible the whole time)
     kf.append(f"{CENTER_ARRIVE:.1f}% {{ transform:translateX({scx}px) }}")
+    # Stay at center during mega
     kf.append(f"{MEGA_BOOM:.1f}% {{ transform:translateX({scx}px) }}")
-    # Exit LEFT after mega (facing forward!)
-    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({xs - 50}px) }}")
-    kf.append(f"100% {{ transform:translateX({xs - 50}px) }}")
+    # Return to start position (visible)
+    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({xs}px) }}")
+    # Stay at start until loop restarts
+    kf.append(f"100% {{ transform:translateX({xs}px) }}")
     css.append(f'@keyframes shipX {{ {" ".join(kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
 
@@ -193,7 +199,6 @@ def build_svg(grid, dates):
         rk.append(f"{pr:.2f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:rotate(0deg) }}")
-    # Aim down: -90° (left-facing nose rotates to point DOWN)
     rk.append(f"{CENTER_AIM:.1f}% {{ transform:rotate(-90deg) }}")
     rk.append(f"{MEGA_BOOM:.1f}% {{ transform:rotate(-90deg) }}")
     rk.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ transform:rotate(0deg) }}")
