@@ -1,14 +1,14 @@
 <div align="center">
 
 <!-- ANIMATED HEADER -->
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=220&section=header&text=Caio%20Jo%C3%A3o%20Gomes%20Pedroso&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Brazil%20Operations%20Supervisor%20%40%20Green%20Village%20%7C%20Entrepreneur%20%7C%20Full-Stack%20Developer&descSize=14&descAlignY=55&descAlign=50"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=250&section=header&text=Caio%20Jo%C3%A3o%20Gomes%20Pedroso&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=30&desc=Brazil%20Operations%20Supervisor%20%40%20Green%20Village%20Mobile%20Homes%0ACEO%20-%20Head%20of%20Tax%20Department%20%40%20Creme%20Jundia%C3%AD&descSize=14&descAlignY=52&descAlign=50"/>
 
 <!-- TYPING ANIMATION -->
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=00D4FF&center=true&vCenter=true&multiline=true&repeat=true&random=false&width=650&height=100&lines=Full-Stack+Developer+%7C+Next.js+%7C+React+%7C+Python+%F0%9F%92%BB;Brazil+Operations+Supervisor+%40+Green+Village+%F0%9F%8F%A0;Entrepreneur+%26+Partner+%40+Creme+Jundia%C3%AD+%F0%9F%8D%A6;Automating+Everything+That+Can+Be+Automated+%E2%9A%A1)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=00D4FF&center=true&vCenter=true&multiline=true&repeat=true&random=false&width=700&height=100&lines=Brazil+Operations+Supervisor+%40+Green+Village+Mobile+Homes+%F0%9F%8F%A0;CEO+-+Head+of+Tax+Department+%40+Creme+Jundia%C3%AD+%F0%9F%8D%A6;Python+Developer+%7C+Business+Automation+%7C+AI+%E2%9A%A1;Building+Smart+Solutions+for+Real+Businesses+%F0%9F%92%BC)](https://git.io/typing-svg)
 
 <!-- SOCIAL BADGES -->
 <p>
-  <a href="https://www.greenvillagemobilehomes.com" target="_blank">
+  <a href="https://www.greenvillagemobilehouses.com" target="_blank">
     <img src="https://img.shields.io/badge/🏠_Green_Village-Website-00d4ff?style=for-the-badge&labelColor=0d1117" alt="Website"/>
   </a>
   <a href="https://www.linkedin.com/in/seu-linkedin" target="_blank">
@@ -40,19 +40,18 @@ const caio = {
     born: 1994,
     roles: [
         "Brazil Operations Supervisor @ Green Village Mobile Homes 🏠",
-        "Entrepreneur & Partner @ Creme Jundiaí 🍦",
-        "Full-Stack Developer 💻"
+        "CEO - Head of Tax Department @ Creme Jundiaí 🍦"
     ],
     location: "Brazil 🇧🇷",
     markets: ["Portugal", "Spain", "Brazil"],
     currentFocus: [
         "Managing Green Village operations in Brazil",
-        "Building AI-powered customer engagement tools",
+        "Leading tax department at Creme Jundiaí",
+        "Building business management web applications",
         "Large-scale web scraping & data automation",
-        "3D virtual showrooms with Three.js",
-        "Social media automation with Make.com"
+        "AI-powered business automation"
     ],
-    funFact: "I automate everything — from social media replies to import cost calculations"
+    funFact: "I automate everything — if it can be coded, it will be coded"
 };
 ```
 
@@ -66,26 +65,32 @@ const caio = {
 
 ### 🎨 Frontend
 <p>
-  <img src="https://skillicons.dev/icons?i=nextjs,react,typescript,javascript,html,css,tailwind,threejs&theme=dark" />
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
 </p>
 
 ### ⚙️ Backend & Databases
 <p>
-  <img src="https://skillicons.dev/icons?i=nodejs,python,postgres,mongodb,supabase,prisma&theme=dark" />
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Excel-217346?style=for-the-badge&logo=microsoftexcel&logoColor=white" />
 </p>
 
 ### 🛠️ Tools & Platforms
 <p>
-  <img src="https://skillicons.dev/icons?i=git,github,docker,vercel,linux,vscode,figma,cloudflare&theme=dark" />
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" />
+  <img src="https://img.shields.io/badge/Antigravity-000000?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Wix-0C6EFC?style=for-the-badge&logo=wix&logoColor=white" />
 </p>
 
 ### 🤖 AI & Automation
 <p>
   <img src="https://img.shields.io/badge/Claude_AI-191919?style=for-the-badge&logo=anthropic&logoColor=white" />
   <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" />
-  <img src="https://img.shields.io/badge/Make.com-6D00CC?style=for-the-badge&logo=make&logoColor=white" />
-  <img src="https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white" />
   <img src="https://img.shields.io/badge/Web_Scraping-FF6600?style=for-the-badge&logo=scrapy&logoColor=white" />
+  <img src="https://img.shields.io/badge/Fastbot-00D4FF?style=for-the-badge&logo=probot&logoColor=white" />
 </p>
 
 </div>
@@ -100,56 +105,39 @@ const caio = {
 
 <table>
 <tr>
-<td width="50%" valign="top">
+<td width="33%" valign="top">
 
-### 🏠 3D Virtual Showroom
+### 🌐 Wix Site Administration
 <p align="center">
-  <img src="https://img.shields.io/badge/Three.js-000000?style=flat-square&logo=three.js&logoColor=white"/>
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white"/>
-  <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black"/>
-  <img src="https://img.shields.io/badge/Claude_AI-191919?style=flat-square&logo=anthropic&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Wix-0C6EFC?style=flat-square&logo=wix&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>
 </p>
 
-Interactive 3D mobile home showroom with AI-powered NPCs representing different company departments. Walk through virtual homes and chat with AI assistants.
+Full site administration and management for business web presence, including content updates, SEO optimization, and custom integrations.
 
 </td>
-<td width="50%" valign="top">
+<td width="33%" valign="top">
 
-### 🕷️ Multi-Site Web Scraper
+### 🕷️ Web Scraper 70+ Sites
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Hetzner-D50C2D?style=flat-square&logo=hetzner&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white"/>
 </p>
 
-Large-scale data extraction application scraping 70+ websites simultaneously. Built with Next.js, migrating to PostgreSQL, deployed on Hetzner Cloud.
+Large-scale data extraction application scraping 70+ websites simultaneously. Automated data collection, processing, and storage pipeline.
 
 </td>
-</tr>
-<tr>
-<td width="50%" valign="top">
+<td width="33%" valign="top">
 
-### 💰 Import Cost Calculator
+### 📊 Business Management WebApp
 <p align="center">
-  <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black"/>
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Fintech_UI-00d4ff?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Excel-217346?style=flat-square&logo=microsoftexcel&logoColor=white"/>
 </p>
 
-Sophisticated calculator handling VAT, ICMS, customs duties across PT/ES/BR markets. Luxury fintech dashboard design with real-time currency conversion.
-
-</td>
-<td width="50%" valign="top">
-
-### 🤖 Social Media Automation
-<p align="center">
-  <img src="https://img.shields.io/badge/Make.com-6D00CC?style=flat-square&logo=make&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Instagram-E4405F?style=flat-square&logo=instagram&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Facebook-1877F2?style=flat-square&logo=facebook&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Claude_AI-191919?style=flat-square&logo=anthropic&logoColor=white"/>
-</p>
-
-AI-powered chatbots for Instagram & Facebook with auto-reply, lead qualification, and customer engagement workflows.
+Complete business management system covering operations, financial tracking, reporting, and team coordination across multiple companies.
 
 </td>
 </tr>
@@ -224,3 +212,6 @@ AI-powered chatbots for Instagram & Facebook with auto-reply, lead qualification
 
 <!-- ANIMATED FOOTER -->
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=120&section=footer"/>
+
+
+
