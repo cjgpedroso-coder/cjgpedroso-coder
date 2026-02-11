@@ -186,29 +186,8 @@ def build_svg(grid, dates):
     css.append(f'@keyframes shipX {{ {" ".join(kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
 
-
-    rk = ["0% { transform:rotate(0deg) }"]
-    for gi, grp in enumerate(groups):
-        cc = grp[len(grp)//2]
-        ap = (cc / COLS) * fly_end_pct
-        pe = min(ap + 1.0, fly_end_pct - 1)
-        # rotate to 90deg just before firing
-        r_start = max(ap - 0.15, 0.1)
-        r_aimed = ap + 0.1
-        # stay rotated during shot, then rotate back
-        r_back_start = pe - 0.2
-        r_back_end = pe
-        rk.append(f"{r_start:.2f}% {{ transform:rotate(0deg) }}")
-        rk.append(f"{r_aimed:.2f}% {{ transform:rotate(90deg) }}")
-        rk.append(f"{r_back_start:.2f}% {{ transform:rotate(90deg) }}")
-        rk.append(f"{r_back_end:.2f}% {{ transform:rotate(0deg) }}")
-    rk.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
-    rk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:rotate(0deg) }}")
-    rk.append(f"{CENTER_AIM:.1f}% {{ transform:rotate(90deg) }}")
-    rk.append(f"{MEGA_BOOM:.1f}% {{ transform:rotate(90deg) }}")
-    rk.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ transform:rotate(0deg) }}")
-    rk.append(f"100% {{ transform:rotate(0deg) }}")
-    css.append(f'@keyframes shipR {{ {" ".join(rk)} }}')
+    # === SHIP ROTATION (none — saucer stays flat) ===
+    css.append(f'@keyframes shipR {{ 0% {{ transform:rotate(0deg) }} 100% {{ transform:rotate(0deg) }} }}')
     css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; transform-box:fill-box; }}')
 
     # === SHIP HORIZONTAL FLIP (mirror when returning to center, stay flipped during mega) ===
