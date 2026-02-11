@@ -1,9 +1,8 @@
-
 #!/usr/bin/env python3
 """
 🚀 GitHub Spaceship v4 — Grand Finale Edition
 - Ship flies across shooting green squares
-- Returns to center, fires MEGA RED LASER
+- Returns to center (facing forward), fires MEGA RED LASER
 - Entire grid explodes in massive shockwave
 - Everything rebuilds at end of cycle
 - Uses GitHub's own contributionLevel for accurate colors
@@ -18,7 +17,6 @@ BG    = "#0d1117"
 EMPTY = "#161b22"
 LV    = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]
 
-# Map GitHub API contributionLevel enum to our level index
 LEVEL_MAP = {
     "NONE": 0,
     "FIRST_QUARTILE": 1,
@@ -42,7 +40,6 @@ MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"
 
 
 def get_lv(c):
-    """Fallback for demo mode only"""
     if c == 0: return 0
     if c <= 3: return 1
     if c <= 6: return 2
@@ -51,7 +48,6 @@ def get_lv(c):
 
 
 def fetch_contributions(username, token):
-    """Fetch real contributions using contributionLevel for accurate color mapping."""
     q = """query($u:String!){user(login:$u){contributionsCollection{
     contributionCalendar{weeks{contributionDays{
       contributionCount contributionLevel date weekday
@@ -67,10 +63,8 @@ def fetch_contributions(username, token):
         days = w["contributionDays"]
         col = []
         for d in days:
-            # Use contributionLevel from API (accurate quartile-based coloring)
             level_str = d.get("contributionLevel", "NONE")
             level = LEVEL_MAP.get(level_str, 0)
-            # Fallback to count-based if level field missing
             if level == 0 and d["contributionCount"] > 0:
                 level = get_lv(d["contributionCount"])
             col.append({"level": level, "count": d["contributionCount"]})
@@ -78,8 +72,6 @@ def fetch_contributions(username, token):
             col.append({"level": 0, "count": 0})
         grid.append(col)
         dates.append(days[0]["date"] if days else None)
-
-    # Stats
     total_green = sum(1 for w in grid for d in w if d["level"] > 0)
     by_level = {i: sum(1 for w in grid for d in w if d["level"] == i) for i in range(5)}
     print(f"   API returned {len(grid)} weeks")
@@ -138,9 +130,7 @@ def build_svg(grid, dates):
     groups = group_targets(grid)
     print(f"   Grid: {COLS}x{ROWS} = {W}x{H}px, {len(groups)} shot groups")
 
-    # === TIMING ===
-    fly_end_pct = 43.0  # individual shots phase ends
-
+    fly_end_pct = 43.0
     CENTER_ARRIVE = 49.0
     CENTER_AIM    = 51.5
     MEGA_FIRE     = 52.5
@@ -168,7 +158,7 @@ def build_svg(grid, dates):
     css = ['<style>']
     css.append('@keyframes tw { 0%,100%{opacity:.1} 50%{opacity:.85} }')
 
-    # === SHIP X ===
+    # === SHIP X: fly right, exit right, RETURN FROM RIGHT to center, exit left ===
     xs = ML - 50; xe = ML + GW + 40; scx = gcx - 16
 
     kf = [f"0% {{ transform:translateX({xs}px) }}"]
@@ -180,14 +170,13 @@ def build_svg(grid, dates):
         kf.append(f"{ap:.2f}% {{ transform:translateX({tx}px) }}")
         kf.append(f"{pe:.2f}% {{ transform:translateX({tx}px) }}")
     kf.append(f"{fly_end_pct:.1f}% {{ transform:translateX({xe}px) }}")
-    # Ship exits screen right, then instantly appears far left
-    kf.append(f"{CENTER_ARRIVE - 2.1:.1f}% {{ transform:translateX({xe}px) }}")
-    kf.append(f"{CENTER_ARRIVE - 2:.1f}% {{ transform:translateX({xs - 30}px) }}")
-    # Fly forward (facing right) to center
+    # Stay off-screen right, then fly BACK from right to center (facing forward!)
+    kf.append(f"{CENTER_ARRIVE - 2:.1f}% {{ transform:translateX({xe}px) }}")
     kf.append(f"{CENTER_ARRIVE:.1f}% {{ transform:translateX({scx}px) }}")
     kf.append(f"{MEGA_BOOM:.1f}% {{ transform:translateX({scx}px) }}")
-    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({xe + 50}px) }}")
-    kf.append(f"100% {{ transform:translateX({xe + 50}px) }}")
+    # Exit LEFT after mega (facing forward!)
+    kf.append(f"{MEGA_FADE:.1f}% {{ transform:translateX({xs - 50}px) }}")
+    kf.append(f"100% {{ transform:translateX({xs - 50}px) }}")
     css.append(f'@keyframes shipX {{ {" ".join(kf)} }}')
     css.append(f'.shipX {{ animation:shipX {CYCLE}s linear infinite; }}')
 
@@ -204,14 +193,15 @@ def build_svg(grid, dates):
         rk.append(f"{pr:.2f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{fly_end_pct:.1f}% {{ transform:rotate(0deg) }}")
     rk.append(f"{CENTER_ARRIVE:.1f}% {{ transform:rotate(0deg) }}")
-    rk.append(f"{CENTER_AIM:.1f}% {{ transform:rotate(90deg) }}")
-    rk.append(f"{MEGA_BOOM:.1f}% {{ transform:rotate(90deg) }}")
+    # Aim down: -90° (left-facing nose rotates to point DOWN)
+    rk.append(f"{CENTER_AIM:.1f}% {{ transform:rotate(-90deg) }}")
+    rk.append(f"{MEGA_BOOM:.1f}% {{ transform:rotate(-90deg) }}")
     rk.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ transform:rotate(0deg) }}")
     rk.append(f"100% {{ transform:rotate(0deg) }}")
     css.append(f'@keyframes shipR {{ {" ".join(rk)} }}')
     css.append(f'.shipR {{ animation:shipR {CYCLE}s linear infinite; transform-origin:16px 8px; }}')
 
-    # === EXHAUST FIRE (hide when rotated, show when straight) ===
+    # === EXHAUST FIRE ===
     ek = ["0% { opacity:1 }"]
     for gi, grp in enumerate(groups):
         cc = grp[len(grp)//2]
@@ -224,15 +214,12 @@ def build_svg(grid, dates):
         ek.append(f"{pr:.2f}% {{ opacity:1 }}")
     ek.append(f"{fly_end_pct:.1f}% {{ opacity:1 }}")
     ek.append(f"{CENTER_ARRIVE:.1f}% {{ opacity:1 }}")
-    # Hide during mega laser aim (90°)
     ek.append(f"{CENTER_AIM:.1f}% {{ opacity:0 }}")
     ek.append(f"{MEGA_BOOM:.1f}% {{ opacity:0 }}")
     ek.append(f"{min(MEGA_BOOM+2,MEGA_FADE-0.5):.1f}% {{ opacity:1 }}")
     ek.append(f"100% {{ opacity:1 }}")
     css.append(f'@keyframes exhaust {{ {" ".join(ek)} }}')
     css.append(f'.exhaust {{ animation:exhaust {CYCLE}s linear infinite; }}')
-
-
 
     # === INDIVIDUAL BOLTS ===
     for gi, grp in enumerate(groups):
@@ -349,7 +336,7 @@ def build_svg(grid, dates):
 }}
 .megaFlash {{ animation:megaFlash {CYCLE}s linear infinite; }}''')
 
-    # === ALL REMAINING SQUARES: MEGA DESTROY (ripple from center) ===
+    # === ALL REMAINING SQUARES: MEGA DESTROY ===
     for ci, week in enumerate(grid):
         for ri, day in enumerate(week):
             if (ci, ri) in shot_set: continue
@@ -396,7 +383,7 @@ def build_svg(grid, dates):
         ly = MT + row_idx * STEP + CELL * 0.8
         svg.append(f'<text x="{ML-10}" y="{ly}" fill="{LABEL_C}" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="9" text-anchor="end" opacity=".8">{label}</text>')
 
-    # === GRID SQUARES (ALL get class for animation) ===
+    # === GRID SQUARES ===
     for ci, week in enumerate(grid):
         for ri, day in enumerate(week):
             x = ML + ci * STEP; y = MT + ri * STEP
