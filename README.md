@@ -11,24 +11,21 @@
 <!-- SOCIAL BADGES -->
 <p>
   <a href="https://www.greenvillagemobilehouses.com" target="_blank">
-    <img src="https://img.shields.io/badge/🏠_Green_Village_Mobile_Homes-00d4ff?style=for-the-badge&labelColor=0d1117" alt="Green Village"/>
+    <img src="https://img.shields.io/badge/Green_Village_Mobile_Homes-00d4ff?style=for-the-badge&logo=googlechrome&logoColor=white&labelColor=0d1117" alt="Green Village"/>
   </a>
   <a href="https://www.cremejundiai.com.br/" target="_blank">
-    <img src="https://img.shields.io/badge/🍦_Creme_Jundiaí-00d4ff?style=for-the-badge&labelColor=0d1117" alt="Creme Jundiaí"/>
+    <img src="https://img.shields.io/badge/Creme_Jundiaí-00d4ff?style=for-the-badge&logo=googlechrome&logoColor=white&labelColor=0d1117" alt="Creme Jundiaí"/>
   </a>
   <a href="https://www.linkedin.com/in/caiojgpedroso/" target="_blank">
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0d1117" alt="LinkedIn"/>
   </a>
   <a href="mailto:cjgpedroso@gmail.com">
-    <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white&labelColor=0d1117" alt="Email"/>
+    <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white&labelColor=0d1117" alt="Gmail"/>
   </a>
   <a href="https://www.instagram.com/_caiopedroso?igsh=Y2V4a29zemI0aGpp" target="_blank">
     <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white&labelColor=0d1117" alt="Instagram"/>
   </a>
 </p>
-
-<!-- PROFILE VIEWS COUNTER -->
-<img src="https://komarev.com/ghpvc/?username=cjgpedroso-coder&style=for-the-badge&color=00d4ff&labelColor=0d1117&label=PROFILE+VIEWS" alt="Profile views"/>
 
 <br/>
 
