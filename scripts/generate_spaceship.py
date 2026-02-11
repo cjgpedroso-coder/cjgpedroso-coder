@@ -81,10 +81,14 @@ def fetch_contributions(username, token):
             dates.append(w["contributionDays"][0]["date"])
         else:
             dates.append(None)
+    # Take the LAST 52 weeks (most recent) if API returns 53+
+    if len(grid) > COLS:
+        grid = grid[-COLS:]
+        dates = dates[-COLS:]
     while len(grid) < COLS:
         grid.append([{"level": 0} for _ in range(7)])
         dates.append(None)
-    return grid[:COLS], dates[:COLS]
+    return grid, dates
 
 
 def demo_grid():
@@ -449,4 +453,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
