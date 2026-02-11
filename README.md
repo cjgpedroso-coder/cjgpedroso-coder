@@ -42,7 +42,8 @@ const caio = {
     born: 1994,
     roles: [
         "Brazil Operations Supervisor @ Green Village Mobile Homes 🏠",
-        "CEO - Head of Tax Department @ Creme Jundiaí 🍦"
+        "CEO - Head of Tax Department @ Creme Jundiaí 🍦",
+        "Business Intelligence Analyst 📊"
     ],
     location: "Brazil 🇧🇷",
     markets: ["Portugal", "Spain", "Brazil"],
@@ -187,16 +188,15 @@ Complete business management system covering operations, financial tracking, rep
 
 <br/>
 
-<!-- ANIMATED SNAKE -->
+<!-- ANIMATED SPACESHIP -->
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-snake-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-snake.svg" />
-  <img alt="Snake animation" src="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-snake-dark.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship.svg" />
+  <img alt="Spaceship animation" src="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship-dark.svg" />
 </picture>
 
 </div>
 
 <!-- ANIMATED FOOTER -->
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00ff88&height=120&section=footer"/>
-
 
