@@ -190,9 +190,9 @@ Complete business management system covering operations, financial tracking, rep
 
 <!-- ANIMATED SPACESHIP -->
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship.svg" />
-  <img alt="Spaceship animation" src="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship-dark.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship-dark.svg?v=20260211" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship.svg?v=20260211" />
+  <img alt="Spaceship animation" src="https://raw.githubusercontent.com/cjgpedroso-coder/cjgpedroso-coder/output/github-spaceship-dark.svg?v=20260211" />
 </picture>
 
 </div>
