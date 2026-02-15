@@ -11,7 +11,7 @@
 <!-- SOCIAL BADGES -->
 <p>
   <a href="https://cjgpedroso-coder.github.io" target="_blank">
-    <img src="https://img.shields.io/badge/📄_Curriculum_Vitae-00FF88?style=for-the-badge&logoColor=white&labelColor=0d1117" alt="Curriculum"/>
+    <img src="https://img.shields.io/badge/📄_Curriculum-0077B5?style=for-the-badge&logoColor=white&labelColor=0077B5" alt="Curriculum"/>
   </a>
   <a href="https://www.greenvillagemobilehomes.com" target="_blank">
     <img src="https://img.shields.io/badge/GreenVillage-2E8B57?style=for-the-badge&logo=internet-explorer&logoColor=white&labelColor=2E8B57" alt="Green Village"/>
@@ -202,14 +202,14 @@ Complete business management system covering operations, financial tracking, rep
 ## 📊 GitHub Analytics
 
 <div align="center">
-  <img width="90%" src="https://github-readme-streak-stats.herokuapp.com/?user=cjgpedroso-coder&theme=black-ice&hide_border=true&stroke=0000&background=0D1117&ring=00d4ff&fire=00d4ff&currStreakLabel=00d4ff" alt="Streak Stats"/>
+  <img width="90%" src="https://github-readme-streak-stats.herokuapp.com/?user=cjgpedroso-coder&theme=black-ice&hide_border=true&stroke=0000&background=0D1117&ring=00ff88&fire=00ff88&currStreakLabel=00ff88&sideLabels=00ff88&currStreakNum=00ff88&sideNums=00ff88&dates=00ff88" alt="Streak Stats"/>
 </div>
 
 <br/>
 
 <!-- CONTRIBUTION GRAPH -->
 <div align="center">
-  <img width="90%" src="https://github-readme-activity-graph.vercel.app/graph?username=cjgpedroso-coder&bg_color=0d1117&color=00d4ff&line=00d4ff&point=ffffff&area_color=0d1117&area=true&hide_border=true" alt="Contribution Graph"/>
+  <img width="90%" src="https://github-readme-activity-graph.vercel.app/graph?username=cjgpedroso-coder&bg_color=0d1117&color=00ff88&line=00ff88&point=ffffff&area_color=0d1117&area=true&hide_border=true" alt="Contribution Graph"/>
 </div>
 
 <div align="center">
