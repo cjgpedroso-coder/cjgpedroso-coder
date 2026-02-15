@@ -10,6 +10,9 @@
 
 <!-- SOCIAL BADGES -->
 <p>
+  <a href="https://cjgpedroso-coder.github.io" target="_blank">
+    <img src="https://img.shields.io/badge/📄_Curriculum_Vitae-00FF88?style=for-the-badge&logoColor=white&labelColor=0d1117" alt="Curriculum"/>
+  </a>
   <a href="https://www.greenvillagemobilehomes.com" target="_blank">
     <img src="https://img.shields.io/badge/GreenVillage-2E8B57?style=for-the-badge&logo=internet-explorer&logoColor=white&labelColor=2E8B57" alt="Green Village"/>
   </a>
@@ -33,6 +36,54 @@
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 
 </div>
+
+<!-- ==================== HELLO WORLD SECTION ==================== -->
+
+<div align="center">
+
+<br/>
+
+<img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="35">&nbsp;
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=36&duration=3000&pause=1000&color=00FF88&center=true&vCenter=true&repeat=true&random=false&width=600&height=60&lines=%3E_+Hello+World!;%3E_+Ol%C3%A1+Mundo!;%3E_+%C2%A1Hola+Mundo!" alt="Hello World"/>
+&nbsp;<img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="35">
+
+<br/>
+
+```python
+#!/usr/bin/env python3
+# 🌍 hello_world.py — because every great dev starts here
+
+def greet():
+    languages = {
+        "🇧🇷 Portuguese": "Olá Mundo!",
+        "🇺🇸 English":    "Hello World!",
+        "🇪🇸 Spanish":    "¡Hola Mundo!"
+    }
+    
+    for lang, greeting in languages.items():
+        print(f"  [{lang}] → {greeting}")
+    
+    print("\n  🚀 Ready to build something amazing...")
+
+if __name__ == "__main__":
+    greet()
+```
+
+<p>
+  <img src="https://img.shields.io/badge/STATUS-Online_&_Building-00ff88?style=flat-square&labelColor=0d1117"/>
+  <img src="https://img.shields.io/badge/COFFEE-∞_cups-00d4ff?style=flat-square&labelColor=0d1117"/>
+  <img src="https://img.shields.io/badge/BUGS-It's_a_feature-ff6600?style=flat-square&labelColor=0d1117"/>
+</p>
+
+<br/>
+
+</div>
+
+<div align="center">
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</div>
+
+<!-- ==================== ABOUT ME ==================== -->
 
 ## <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> &nbsp;About Me
 
@@ -194,4 +245,3 @@ Complete business management system covering operations, financial tracking, rep
 
 <!-- ANIMATED FOOTER -->
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00ff88&height=120&section=footer"/>
-
