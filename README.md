@@ -1,4 +1,3 @@
-
 <div align="center">
 
 <!-- ANIMATED HEADER -->
@@ -50,13 +49,7 @@
 
 <br/>
 
-<p>
-  <img src="https://img.shields.io/badge/STATUS-Online_&_Building-00ff88?style=flat-square&labelColor=0d1117"/>
-  <img src="https://img.shields.io/badge/COFFEE-∞_cups-00d4ff?style=flat-square&labelColor=0d1117"/>
-  <img src="https://img.shields.io/badge/BUGS-It's_a_feature-ff6600?style=flat-square&labelColor=0d1117"/>
-</p>
 
-<br/>
 
 </div>
 
@@ -226,3 +219,4 @@ Complete business management system covering operations, financial tracking, rep
 
 <!-- ANIMATED FOOTER -->
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00ff88&height=120&section=footer"/>
+
