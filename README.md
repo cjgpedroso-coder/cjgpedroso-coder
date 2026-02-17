@@ -68,7 +68,6 @@ const caio = {
     roles: [
         "Brazil Operations Supervisor @ Green Village Mobile Homes 🏠",
         "CEO - Head of Tax Department @ Creme Jundiaí 🍦",
-        "Business Intelligence Analyst 📊"
     ],
     location: "Brazil 🇧🇷",
     markets: ["Portugal", "Spain", "Brazil"],
