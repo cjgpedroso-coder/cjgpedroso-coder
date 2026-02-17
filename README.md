@@ -1,3 +1,4 @@
+
 <div align="center">
 
 <!-- ANIMATED HEADER -->
@@ -48,26 +49,6 @@
 &nbsp;<img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="35">
 
 <br/>
-
-```python
-#!/usr/bin/env python3
-# 🌍 hello_world.py — because every great dev starts here
-
-def greet():
-    languages = {
-        "🇧🇷 Portuguese": "Olá Mundo!",
-        "🇺🇸 English":    "Hello World!",
-        "🇪🇸 Spanish":    "¡Hola Mundo!"
-    }
-    
-    for lang, greeting in languages.items():
-        print(f"  [{lang}] → {greeting}")
-    
-    print("\n  🚀 Ready to build something amazing...")
-
-if __name__ == "__main__":
-    greet()
-```
 
 <p>
   <img src="https://img.shields.io/badge/STATUS-Online_&_Building-00ff88?style=flat-square&labelColor=0d1117"/>
