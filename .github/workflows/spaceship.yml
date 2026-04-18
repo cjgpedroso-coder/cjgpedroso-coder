@@ -24,7 +24,7 @@ jobs:
       - name: Generate spaceship animation
         env:
           GITHUB_USERNAME: cjgpedroso-coder
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           OUTPUT_DIR: dist
         run: python scripts/generate_spaceship.py
 
