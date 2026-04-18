@@ -28,10 +28,17 @@ jobs:
           OUTPUT_DIR: dist
         run: python scripts/generate_spaceship.py
 
+      - name: Generate stats (streak + activity graph)
+        env:
+          GITHUB_USERNAME: cjgpedroso-coder
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          OUTPUT_DIR: dist
+        run: python scripts/generate_stats.py
+
       - name: Push to output branch
         uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: output
           build_dir: dist
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
