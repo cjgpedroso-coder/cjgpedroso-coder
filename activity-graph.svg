@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="320" viewBox="0 0 850 320">
+    <style>
+        @keyframes drawLine {
+            0% { stroke-dashoffset: 2000; }
+            100% { stroke-dashoffset: 0; }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+    <rect width="850" height="320" rx="6" fill="#0D1117"/>
+    
+    <!-- Title -->
+    <text x="425.0" y="35" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="600" text-anchor="middle" style="opacity:0; animation: fadeIn 0.5s forwards 0.2s">cjgpedroso-coder's Contribution Graph</text>
+    
+    <!-- Y-axis label -->
+    <text x="15" y="165.0" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle" transform="rotate(-90, 15, 165.0)">Contributions</text>
+    
+    <!-- Grid -->
+    <line x1="55" y1="270.0" x2="820" y2="270.0" stroke="#8b949e" stroke-opacity="0.15" stroke-width="1"/><text x="45" y="274.0" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="end">0</text><line x1="55" y1="235.0" x2="820" y2="235.0" stroke="#8b949e" stroke-opacity="0.15" stroke-width="1"/><text x="45" y="239.0" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="end">3</text><line x1="55" y1="200.0" x2="820" y2="200.0" stroke="#8b949e" stroke-opacity="0.15" stroke-width="1"/><text x="45" y="204.0" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="end">7</text><line x1="55" y1="165.0" x2="820" y2="165.0" stroke="#8b949e" stroke-opacity="0.15" stroke-width="1"/><text x="45" y="169.0" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="end">10</text><line x1="55" y1="130.0" x2="820" y2="130.0" stroke="#8b949e" stroke-opacity="0.15" stroke-width="1"/><text x="45" y="134.0" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="end">14</text><line x1="55" y1="95.0" x2="820" y2="95.0" stroke="#8b949e" stroke-opacity="0.15" stroke-width="1"/><text x="45" y="99.0" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="end">17</text><line x1="55" y1="60.0" x2="820" y2="60.0" stroke="#8b949e" stroke-opacity="0.15" stroke-width="1"/><text x="45" y="64.0" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="end">21</text>
+    
+    <!-- X labels -->
+    <text x="55.0" y="295" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle">Mar 26</text><text x="182.5" y="295" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle">Mar 31</text><text x="310.0" y="295" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle">Apr 5</text><text x="437.5" y="295" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle">Apr 10</text><text x="565.0" y="295" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle">Apr 15</text><text x="692.5" y="295" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle">Apr 20</text><text x="820.0" y="295" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle">Apr 25</text>
+    
+    <!-- X-axis label -->
+    <text x="425.0" y="312" fill="#8b949e" font-family="'Segoe UI', sans-serif" font-size="11" text-anchor="middle">Days</text>
+    
+    <!-- Area fill -->
+    <polygon points="55.0,200.0 80.5,150.0 106.0,230.0 131.5,270.0 157.0,230.0 182.5,270.0 208.0,270.0 233.5,270.0 259.0,120.0 284.5,260.0 310.0,260.0 335.5,250.0 361.0,190.0 386.5,270.0 412.0,230.0 437.5,270.0 463.0,270.0 488.5,270.0 514.0,270.0 539.5,180.0 565.0,220.0 590.5,70.0 616.0,100.0 641.5,140.0 667.0,270.0 692.5,270.0 718.0,270.0 743.5,220.0 769.0,190.0 794.5,220.0 820.0,230.0 820.0,270.0 55.0,270.0" fill="#00ff88" opacity="0.1" style="opacity:0; animation: fadeIn 0.8s forwards 0.5s"/>
+    
+    <!-- Line -->
+    <polyline points="55.0,200.0 80.5,150.0 106.0,230.0 131.5,270.0 157.0,230.0 182.5,270.0 208.0,270.0 233.5,270.0 259.0,120.0 284.5,260.0 310.0,260.0 335.5,250.0 361.0,190.0 386.5,270.0 412.0,230.0 437.5,270.0 463.0,270.0 488.5,270.0 514.0,270.0 539.5,180.0 565.0,220.0 590.5,70.0 616.0,100.0 641.5,140.0 667.0,270.0 692.5,270.0 718.0,270.0 743.5,220.0 769.0,190.0 794.5,220.0 820.0,230.0" fill="none" stroke="#00ff88" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="2000" style="animation: drawLine 2s ease forwards"/>
+    
+    <!-- Dots -->
+    <g style="opacity:0; animation: fadeIn 0.5s forwards 1.5s">
+        <circle cx="55.0" cy="200.0" r="4" fill="#00ff88" opacity="1"/><circle cx="80.5" cy="150.0" r="4" fill="#00ff88" opacity="1"/><circle cx="106.0" cy="230.0" r="4" fill="#00ff88" opacity="1"/><circle cx="131.5" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="157.0" cy="230.0" r="4" fill="#00ff88" opacity="1"/><circle cx="182.5" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="208.0" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="233.5" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="259.0" cy="120.0" r="4" fill="#00ff88" opacity="1"/><circle cx="284.5" cy="260.0" r="4" fill="#00ff88" opacity="1"/><circle cx="310.0" cy="260.0" r="4" fill="#00ff88" opacity="1"/><circle cx="335.5" cy="250.0" r="4" fill="#00ff88" opacity="1"/><circle cx="361.0" cy="190.0" r="4" fill="#00ff88" opacity="1"/><circle cx="386.5" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="412.0" cy="230.0" r="4" fill="#00ff88" opacity="1"/><circle cx="437.5" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="463.0" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="488.5" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="514.0" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="539.5" cy="180.0" r="4" fill="#00ff88" opacity="1"/><circle cx="565.0" cy="220.0" r="4" fill="#00ff88" opacity="1"/><circle cx="590.5" cy="70.0" r="4" fill="#00ff88" opacity="1"/><circle cx="616.0" cy="100.0" r="4" fill="#00ff88" opacity="1"/><circle cx="641.5" cy="140.0" r="4" fill="#00ff88" opacity="1"/><circle cx="667.0" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="692.5" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="718.0" cy="270.0" r="3" fill="#00ff88" opacity="0.5"/><circle cx="743.5" cy="220.0" r="4" fill="#00ff88" opacity="1"/><circle cx="769.0" cy="190.0" r="4" fill="#00ff88" opacity="1"/><circle cx="794.5" cy="220.0" r="4" fill="#00ff88" opacity="1"/><circle cx="820.0" cy="230.0" r="4" fill="#00ff88" opacity="1"/>
+    </g>
+</svg>
